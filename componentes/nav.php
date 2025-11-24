@@ -17,6 +17,11 @@ $currentPage === "cds"
 $currentPage === "vinilos"
     ? 'class="active"'
     : ""; ?>>Vinilos</a>
-    <a href="/login">Iniciar sesión</a>
+    <a href="<?php echo isset($basePath)
+        ? $basePath . "views/login.php"
+        : "./views/login.php"; ?>" <?php echo isset($currentPage) &&
+$currentPage === "login"
+    ? 'class="active"'
+    : ""; ?>>Iniciar sesión</a>
     <a href="/contacto">Contacto</a>
 </nav>

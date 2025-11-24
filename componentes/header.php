@@ -7,6 +7,11 @@
     <link rel="stylesheet" href="<?php echo isset($cssPath)
         ? $cssPath
         : "css/styles.css"; ?>" />
+    <?php if (isset($currentPage) && $currentPage === "login"): ?>
+        <link rel="stylesheet" href="<?php echo isset($cssPath)
+            ? str_replace("styles.css", "auth.css", $cssPath)
+            : "css/auth.css"; ?>" />
+    <?php endif; ?>
 </head>
 <body>
     
