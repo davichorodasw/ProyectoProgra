@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="css/styles.css" />
   </head>
   <body>
-    <div class="header">
+    
+  <div class="header">
       <div class="header-content">
         <h1>Ritmo Retro</h1>
         <img src="img/RitmoRetro.png" alt="Logo Ritmo Retro" />
@@ -18,7 +19,6 @@
     <nav>
       <a href="/CDS">CDs</a>
       <a href="/vinilos">Vinilos</a>
-      <a href="/busqueda">Búsqueda</a>
       <a href="/login">Iniciar sesión</a>
       <a href="/contacto">Contacto</a>
     </nav>
