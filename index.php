@@ -17,8 +17,9 @@
     </div>
 
     <nav>
-      <a href="/CDS">CDs</a>
-      <a href="/vinilos">Vinilos</a>
+      <a href="./index.php">Inicio</a>
+      <a href="./views/cds.php">CDs</a>
+      <a href="./views/vinilos.php">Vinilos</a>
       <a href="/login">Iniciar sesión</a>
       <a href="/contacto">Contacto</a>
     </nav>
