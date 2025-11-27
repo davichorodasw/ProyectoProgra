@@ -19,12 +19,11 @@ $oldEmail = isset($_GET["email"]) ? $_GET["email"] : "";
 <?php include "../componentes/nav.php"; ?>
 
 <main class="main-content">
-    <!-- Incluir el componente de login -->
     <?php
-    $formAction = "../php/conexion.php"; // Apunta al script de conexión
-    $forgotPasswordLink = "#olvidado"; // Link temporal
-    $registerLink = "#registro"; // Link temporal
-    include "../componentes/login-form.php";
+    $formAction = '#';
+    $forgotPasswordLink = './forgot-password.php';
+    $registerLink = './register.php';
+    include '../componentes/login-form.php';
     ?>
 </main>
 
