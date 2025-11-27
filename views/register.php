@@ -1,18 +1,17 @@
 <?php
-$pageTitle = "Contacto - Ritmo Retro";
-$currentPage = "contacto";
-$cssPath = "../css/styles.css";
-$imgPath = "../img/RitmoRetro.png";
-$basePath = "../";
+$pageTitle = 'Registro - Ritmo Retro';
+$currentPage = 'register';
+$cssPath = '../css/styles.css';
+$imgPath = '../img/RitmoRetro.png';
+$basePath = '../';
 
 // Variables para simular funcionalidad
-$success = isset($_GET["success"])
-    ? "¡Mensaje enviado correctamente! Te contactaremos pronto."
-    : null;
-$oldNombre = isset($_GET["nombre"]) ? $_GET["nombre"] : "";
-$oldEmail = isset($_GET["email"]) ? $_GET["email"] : "";
-$oldAsunto = isset($_GET["asunto"]) ? $_GET["asunto"] : "";
-$oldMensaje = isset($_GET["mensaje"]) ? $_GET["mensaje"] : "";
+$errors = isset($_GET['error']) ? ['El email ya está registrado.'] : [];
+$success = isset($_GET['success']) ? '¡Cuenta creada correctamente! Por favor, verifica tu email.' : null;
+$oldName = isset($_GET['name']) ? $_GET['name'] : '';
+$oldEmail = isset($_GET['email']) ? $_GET['email'] : '';
+$oldPhone = isset($_GET['phone']) ? $_GET['phone'] : '';
+$oldNewsletter = isset($_GET['newsletter']) ? true : false;
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -22,7 +21,7 @@ $oldMensaje = isset($_GET["mensaje"]) ? $_GET["mensaje"] : "";
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><?php echo $pageTitle; ?></title>
     <link rel="stylesheet" href="<?php echo $cssPath; ?>" />
-    <link rel="stylesheet" href="../css/contacto.css" />
+    <link rel="stylesheet" href="../css/auth.css" />
 </head>
 
 <body>
@@ -40,30 +39,17 @@ $oldMensaje = isset($_GET["mensaje"]) ? $_GET["mensaje"] : "";
         <a href="./cds.php">CDs</a>
         <a href="./vinilos.php">Vinilos</a>
         <a href="./login.php">Iniciar sesión</a>
-        <a href="./contacto.php" class="active">Contacto</a>
+        <a href="./contacto.php">Contacto</a>
     </nav>
 
     <main class="main-content">
-        <!-- Incluir el componente de contacto -->
         <?php
-        $formAction = "#"; // En un caso real, sería el script que procesa el formulario
-        include "../componentes/contact-form.php";
+        $formAction = '#';
+        $loginLink = './login.php';
+        $termsLink = './terminos.php';
+        $privacyLink = './privacidad.php';
+        include '../componentes/register-form.php';
         ?>
-
-        <!-- Información de contacto adicional -->
-        <div class="contact-info">
-            <div class="contact-method">
-                <div class="contact-icon">📧</div>
-                <h3>Email</h3>
-                <p>email@ritmoretro.com</p>
-            </div>
-
-            <div class="contact-method">
-                <div class="contact-icon">📞</div>
-                <h3>Teléfono</h3>
-                <p>+593 98 765 4321</p>
-            </div>
-        </div>
     </main>
 
     <footer class="footer">
@@ -79,10 +65,10 @@ $oldMensaje = isset($_GET["mensaje"]) ? $_GET["mensaje"] : "";
                 <a href="./vinilos.php">Vinilos</a>
             </div>
             <div class="footer-section">
-                <h3>Contacto</h3>
-                <a href="./contacto.php">Formulario de contacto</a>
-                <p>email@ritmoretro.com</p>
-                <p>+34 123 456 789</p>
+                <h3>Legal</h3>
+                <a href="./terminos.php">Términos y Condiciones</a>
+                <a href="./privacidad.php">Política de Privacidad</a>
+                <a href="./cookies.php">Cookies</a>
             </div>
         </div>
         <div class="footer-bottom">
