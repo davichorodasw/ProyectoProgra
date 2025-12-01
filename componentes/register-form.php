@@ -5,12 +5,12 @@
     </p>
 
     <!-- Mostrar errores -->
-    <?php if (isset($errors) && !empty($errors)): ?>
+    <?php if (!empty($errors)): ?>
         <div class="alert-danger">
             <strong>¡Ups! Algo salió mal.</strong>
             <ul>
                 <?php foreach ($errors as $error): ?>
-                    <li><?php echo $error; ?></li>
+                    <li><?php echo htmlspecialchars($error); ?></li>
                 <?php endforeach; ?>
             </ul>
         </div>
@@ -23,7 +23,7 @@
         </div>
     <?php endif; ?>
 
-    <form method="POST" action="<?php echo isset($formAction) ? $formAction : '#'; ?>">
+    <form method="POST" action="<?php echo $formAction; ?>">
         <!-- Nombres -->
         <div class="form-group">
             <label for="name">Nombre Completo</label>
@@ -31,7 +31,7 @@
                 id="name"
                 type="text"
                 name="name"
-                value="<?php echo isset($oldName) ? htmlspecialchars($oldName) : ''; ?>"
+                value="<?php echo htmlspecialchars($oldName); ?>"
                 placeholder="Tu nombre completo"
                 required
                 autofocus>
@@ -44,7 +44,7 @@
                 id="email"
                 type="email"
                 name="email"
-                value="<?php echo isset($oldEmail) ? htmlspecialchars($oldEmail) : ''; ?>"
+                value="<?php echo htmlspecialchars($oldEmail); ?>"
                 placeholder="tu@email.com"
                 required>
         </div>
@@ -56,7 +56,7 @@
                 id="phone"
                 type="tel"
                 name="phone"
-                value="<?php echo isset($oldPhone) ? htmlspecialchars($oldPhone) : ''; ?>"
+                value="<?php echo htmlspecialchars($oldPhone); ?>"
                 placeholder="+593 98 765 4321">
         </div>
 
@@ -95,8 +95,8 @@
                     style="width: auto; margin-top: 0.25rem;"
                     required>
                 <span>
-                    Acepto los <a href="<?php echo isset($termsLink) ? $termsLink : '#'; ?>" class="auth-link">términos y condiciones</a>
-                    y la <a href="<?php echo isset($privacyLink) ? $privacyLink : '#'; ?>" class="auth-link">política de privacidad</a>
+                    Acepto los <a href="<?php echo $termsLink; ?>" class="auth-link">términos y condiciones</a>
+                    y la <a href="<?php echo $privacyLink; ?>" class="auth-link">política de privacidad</a>
                 </span>
             </label>
         </div>
@@ -107,7 +107,7 @@
         </button>
 
         <div class="auth-footer-link">
-            <a href="<?php echo isset($loginLink) ? $loginLink : '#'; ?>" class="auth-link">
+            <a href="<?php echo $loginLink; ?>" class="auth-link">
                 ¿Ya tienes cuenta? Inicia sesión
             </a>
         </div>

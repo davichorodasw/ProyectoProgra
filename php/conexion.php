@@ -4,7 +4,7 @@ function conectarDB()
     $servername = "localhost";
     $username = "root";
     $password = "";
-    $db = "RitmoRetro1";
+    $db = "ritmoretro";
 
     $conn = mysqli_connect($servername, $username, $password, $db);
 
@@ -19,4 +19,3 @@ function desconectarDB($conn)
 {
     mysqli_close($conn);
 }
-?>

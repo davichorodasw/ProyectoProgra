@@ -5,13 +5,21 @@ $cssPath = '../css/styles.css';
 $imgPath = '../img/RitmoRetro.png';
 $basePath = '../';
 
-// Variables para simular funcionalidad
-$errors = isset($_GET['error']) ? ['El email ya está registrado.'] : [];
-$success = isset($_GET['success']) ? '¡Cuenta creada correctamente! Por favor, verifica tu email.' : null;
+// Manejar errores
+$errors = [];
+if (isset($_GET['error'])) {
+    $error_param = $_GET['error'];
+    if (strpos($error_param, '|') !== false) {
+        $errors = explode('|', urldecode($error_param));
+    } else {
+        $errors[] = urldecode($error_param);
+    }
+}
+
+$success = isset($_GET['success']) ? '¡Cuenta creada correctamente!' : null;
 $oldName = isset($_GET['name']) ? $_GET['name'] : '';
 $oldEmail = isset($_GET['email']) ? $_GET['email'] : '';
 $oldPhone = isset($_GET['phone']) ? $_GET['phone'] : '';
-$oldNewsletter = isset($_GET['newsletter']) ? true : false;
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -44,7 +52,8 @@ $oldNewsletter = isset($_GET['newsletter']) ? true : false;
 
     <main class="main-content">
         <?php
-        $formAction = '#';
+        // RUTA CORREGIDA: apunta a php/procesar-registro.php
+        $formAction = '../php/procesar-registro.php';
         $loginLink = './login.php';
         $termsLink = './terminos.php';
         $privacyLink = './privacidad.php';
