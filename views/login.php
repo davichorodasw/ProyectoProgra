@@ -1,17 +1,22 @@
 <?php
+session_start();
+
+if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
+    header('Location: ../index.php');
+    exit;
+}
+
 $pageTitle = "Iniciar Sesión - Ritmo Retro";
 $currentPage = "login";
 $cssPath = "../css/styles.css";
 $imgPath = "../img/RitmoRetro.png";
 $basePath = "../";
 
-// Variables para simular funcionalidad (en un caso real vendrían del backend)
-$errors = isset($_GET["error"])
-    ? ["Credenciales incorrectas. Por favor, inténtalo de nuevo."]
-    : [];
-$status = isset($_GET["status"])
-    ? "Tu contraseña ha sido restablecida correctamente."
-    : null;
+$errors = [];
+if (isset($_GET["error"])) {
+    $errors[] = urldecode($_GET["error"]);
+}
+
 $oldEmail = isset($_GET["email"]) ? $_GET["email"] : "";
 ?>
 
@@ -20,7 +25,7 @@ $oldEmail = isset($_GET["email"]) ? $_GET["email"] : "";
 
 <main class="main-content">
     <?php
-    $formAction = '#';
+    $formAction = '../php/procesar-login.php';
     $forgotPasswordLink = './forgot-password.php';
     $registerLink = './register.php';
     include '../componentes/login-form.php';

@@ -1,11 +1,17 @@
 <?php
+session_start();
+
+if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
+    header('Location: ../index.php');
+    exit;
+}
+
 $pageTitle = 'Registro - Ritmo Retro';
 $currentPage = 'register';
 $cssPath = '../css/styles.css';
 $imgPath = '../img/RitmoRetro.png';
 $basePath = '../';
 
-// Manejar errores
 $errors = [];
 if (isset($_GET['error'])) {
     $error_param = $_GET['error'];
@@ -52,7 +58,6 @@ $oldPhone = isset($_GET['phone']) ? $_GET['phone'] : '';
 
     <main class="main-content">
         <?php
-        // RUTA CORREGIDA: apunta a php/procesar-registro.php
         $formAction = '../php/procesar-registro.php';
         $loginLink = './login.php';
         $termsLink = './terminos.php';
@@ -81,7 +86,7 @@ $oldPhone = isset($_GET['phone']) ? $_GET['phone'] : '';
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2023 Ritmo Retro. Todos los derechos reservados.</p>
+            <p>&copy; 2025 Ritmo Retro. Todos los derechos reservados.</p>
         </div>
     </footer>
 </body>
