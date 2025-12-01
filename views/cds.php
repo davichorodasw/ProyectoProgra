@@ -1,4 +1,5 @@
 <?php
+session_start();
 $pageTitle = "CDs - Ritmo Retro";
 $currentPage = "cds";
 $cssPath = "../css/styles.css";
@@ -14,13 +15,11 @@ $basePath = "../";
         <p>Descubre la mejor música en formato CD con la calidad que mereces</p>
     </div>
 
-    <!-- Barra de Búsqueda para CDs -->
     <?php
     $searchPlaceholder = "Buscar CDs por título, artista o género...";
     include "../componentes/search-bar.php";
     ?>
 
-    <!-- Mostrar resultados de búsqueda si hay término -->
     <?php if (isset($_GET["q"]) && !empty(trim($_GET["q"]))): ?>
         <?php $searchTerm = htmlspecialchars(trim($_GET["q"])); ?>
         <div class="search-results-header">
@@ -66,7 +65,6 @@ $basePath = "../";
 
     <section class="products-section">
         <div class="products-grid">
-            <!-- CD 1 -->
             <div class="product-card cd-card">
                 <div class="product-image cd-image">
                     <span class="cd-label">CD</span>
@@ -86,7 +84,6 @@ $basePath = "../";
                 </div>
             </div>
 
-            <!-- CD 2 -->
             <div class="product-card cd-card">
                 <div class="product-image cd-image">
                     <span class="cd-label">CD</span>
@@ -104,8 +101,6 @@ $basePath = "../";
                     <button class="add-to-cart">Añadir al Carrito</button>
                 </div>
             </div>
-
-            <!-- Resto de CDs... -->
         </div>
     </section>
 

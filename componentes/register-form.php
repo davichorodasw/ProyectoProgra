@@ -1,10 +1,23 @@
+<?php
+if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
+    echo '<div class="auth-container">';
+    echo '<h2>Ya estás registrado</h2>';
+    echo '<p>Ya has iniciado sesión como ' . htmlspecialchars($_SESSION['user_name']) . '</p>';
+    echo '<div style="display: flex; gap: 1rem; margin-top: 2rem;">';
+    echo '<a href="../index.php" class="btn btn-primary">Volver al Inicio</a>';
+    echo '<a href="../views/mi-cuenta.php" class="btn btn-secondary">Mi Cuenta</a>';
+    echo '</div>';
+    echo '</div>';
+    return;
+}
+?>
+
 <div class="auth-container">
     <h2>Crear Cuenta</h2>
     <p style="text-align: center; margin-bottom: 2rem; color: #666;">
         Únete a Ritmo Retro y descubre el sonido auténtico
     </p>
 
-    <!-- Mostrar errores -->
     <?php if (!empty($errors)): ?>
         <div class="alert-danger">
             <strong>¡Ups! Algo salió mal.</strong>
@@ -16,7 +29,6 @@
         </div>
     <?php endif; ?>
 
-    <!-- Mostrar mensajes de éxito -->
     <?php if (isset($success) && !empty($success)): ?>
         <div class="alert-success" style="margin-bottom: 1.5rem;">
             <?php echo $success; ?>
@@ -24,7 +36,6 @@
     <?php endif; ?>
 
     <form method="POST" action="<?php echo $formAction; ?>">
-        <!-- Nombres -->
         <div class="form-group">
             <label for="name">Nombre Completo</label>
             <input
@@ -37,7 +48,6 @@
                 autofocus>
         </div>
 
-        <!-- Email -->
         <div class="form-group">
             <label for="email">Correo Electrónico</label>
             <input
@@ -49,7 +59,6 @@
                 required>
         </div>
 
-        <!-- Teléfono (Opcional) -->
         <div class="form-group">
             <label for="phone">Teléfono <small>(Opcional)</small></label>
             <input
@@ -60,7 +69,6 @@
                 placeholder="+593 98 765 4321">
         </div>
 
-        <!-- Contraseña -->
         <div class="form-group">
             <label for="password">Contraseña</label>
             <input
@@ -74,7 +82,6 @@
             </small>
         </div>
 
-        <!-- Confirmar Contraseña -->
         <div class="form-group">
             <label for="password_confirmation">Confirmar Contraseña</label>
             <input
@@ -85,7 +92,6 @@
                 required>
         </div>
 
-        <!-- Términos y Condiciones -->
         <div class="form-group" style="margin-bottom: 1.5rem;">
             <label for="terms" style="display: flex; align-items: flex-start; gap: 0.5rem; font-weight: normal; cursor: pointer;">
                 <input
@@ -101,7 +107,6 @@
             </label>
         </div>
 
-        <!-- Botón de Registro -->
         <button type="submit" class="btn btn-primary submit-btn">
             Crear Cuenta
         </button>

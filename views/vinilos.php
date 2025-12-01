@@ -1,4 +1,5 @@
 <?php
+session_start();
 $pageTitle = "Vinilos - Ritmo Retro";
 $currentPage = "vinilos";
 $cssPath = "../css/styles.css";
@@ -14,13 +15,11 @@ $basePath = "../";
         <p>Experimenta la magia del sonido analógico con nuestros vinilos de edición especial</p>
     </div>
 
-    <!-- Barra de Búsqueda para Vinilos -->
     <?php
     $searchPlaceholder = "Buscar vinilos por título, artista o género...";
     include "../componentes/search-bar.php";
     ?>
 
-    <!-- Mostrar resultados de búsqueda si hay término -->
     <?php if (isset($_GET["q"]) && !empty(trim($_GET["q"]))): ?>
         <?php $searchTerm = htmlspecialchars(trim($_GET["q"])); ?>
         <div class="search-results-header">
@@ -79,7 +78,6 @@ $basePath = "../";
 
     <section class="products-section">
         <div class="products-grid">
-            <!-- Vinilo 1 -->
             <div class="product-card vinyl-card">
                 <div class="product-image vinyl-image">
                     <span class="vinyl-label">Vinilo</span>
@@ -100,11 +98,8 @@ $basePath = "../";
                 </div>
             </div>
 
-            <!-- Resto de vinilos... -->
         </div>
     </section>
-
-    <!-- Resto del contenido... -->
 </main>
 
 <?php include "../componentes/footer.php"; ?>

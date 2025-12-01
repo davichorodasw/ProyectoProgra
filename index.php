@@ -1,4 +1,5 @@
 <?php
+session_start();
 $pageTitle = "Ritmo Retro";
 $currentPage = "inicio";
 ?>
@@ -6,7 +7,6 @@ $currentPage = "inicio";
 <?php include "componentes/nav.php"; ?>
 
 <main class="main-content">
-    <!-- Contenido principal sin cambios -->
     <section class="hero">
         <div class="hero-content">
             <h2>Descubre el sonido auténtico</h2>

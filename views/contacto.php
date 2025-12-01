@@ -1,11 +1,11 @@
 <?php
+session_start();
 $pageTitle = "Contacto - Ritmo Retro";
 $currentPage = "contacto";
 $cssPath = "../css/styles.css";
 $imgPath = "../img/RitmoRetro.png";
 $basePath = "../";
 
-// Variables para simular funcionalidad
 $success = isset($_GET["success"])
     ? "¡Mensaje enviado correctamente! Te contactaremos pronto."
     : null;
@@ -26,31 +26,15 @@ $oldMensaje = isset($_GET["mensaje"]) ? $_GET["mensaje"] : "";
 </head>
 
 <body>
-
-    <div class="header">
-        <div class="header-content">
-            <h1>Ritmo Retro</h1>
-            <img src="<?php echo $imgPath; ?>" alt="Logo Ritmo Retro" />
-            <h2>En físico, todo es mejor</h2>
-        </div>
-    </div>
-
-    <nav>
-        <a href="../index.php">Inicio</a>
-        <a href="./cds.php">CDs</a>
-        <a href="./vinilos.php">Vinilos</a>
-        <a href="./login.php">Iniciar sesión</a>
-        <a href="./contacto.php" class="active">Contacto</a>
-    </nav>
+    <?php include "../componentes/header.php"; ?>
+    <?php include "../componentes/nav.php"; ?>
 
     <main class="main-content">
-        <!-- Incluir el componente de contacto -->
         <?php
-        $formAction = "#"; // En un caso real, sería el script que procesa el formulario
+        $formAction = "#";
         include "../componentes/contact-form.php";
         ?>
 
-        <!-- Información de contacto adicional -->
         <div class="contact-info">
             <div class="contact-method">
                 <div class="contact-icon">📧</div>
@@ -66,29 +50,4 @@ $oldMensaje = isset($_GET["mensaje"]) ? $_GET["mensaje"] : "";
         </div>
     </main>
 
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>Ritmo Retro</h3>
-                <p>Tu tienda de confianza para vinilos y CDs.</p>
-            </div>
-            <div class="footer-section">
-                <h3>Enlaces Rápidos</h3>
-                <a href="../index.php">Inicio</a>
-                <a href="./cds.php">CDs</a>
-                <a href="./vinilos.php">Vinilos</a>
-            </div>
-            <div class="footer-section">
-                <h3>Contacto</h3>
-                <a href="./contacto.php">Formulario de contacto</a>
-                <p>email@ritmoretro.com</p>
-                <p>+34 123 456 789</p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2023 Ritmo Retro. Todos los derechos reservados.</p>
-        </div>
-    </footer>
-</body>
-
-</html>
+    <?php include "../componentes/footer.php"; ?>
