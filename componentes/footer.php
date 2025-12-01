@@ -29,6 +29,8 @@
         <p>&copy; 2025 Ritmo Retro. Todos los derechos reservados.</p>
     </div>
 </footer>
+
+<script src="<?php echo isset($basePath) ? $basePath . 'js/dropdown.js' : '../js/dropdown.js'; ?>"></script>
 </body>
 
 </html>
