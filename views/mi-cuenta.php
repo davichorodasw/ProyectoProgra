@@ -28,8 +28,7 @@ $basePath = "../";
         </div>
 
         <div class="account-actions" style="display: flex; gap: 1rem; margin-top: 2rem;">
-            <a href="../index.php" class="btn btn-secondary">Volver al Inicio</a>
-            <a href="../php/logout.php" class="btn btn-primary">Cerrar Sesión</a>
+            <a href="../index.php" class="btn btn-primary">Volver al Inicio</a>
         </div>
     </div>
 </main>
