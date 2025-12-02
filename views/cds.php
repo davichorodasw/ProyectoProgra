@@ -1,5 +1,5 @@
+<?php session_start(); ?>
 <?php
-session_start();
 $pageTitle = "CDs - Ritmo Retro";
 $currentPage = "cds";
 $cssPath = "../css/styles.css";
@@ -15,18 +15,17 @@ $basePath = "../";
         <p>Descubre la mejor música en formato CD con la calidad que mereces</p>
     </div>
 
-    <?php
-    $searchPlaceholder = "Buscar CDs por título, artista o género...";
-    include "../componentes/search-bar.php";
-    ?>
-
-    <?php if (isset($_GET["q"]) && !empty(trim($_GET["q"]))): ?>
-        <?php $searchTerm = htmlspecialchars(trim($_GET["q"])); ?>
-        <div class="search-results-header">
-            <h3>Resultados de búsqueda para: <span class="search-term">"<?php echo $searchTerm; ?>"</span></h3>
-            <p class="search-results-count">Mostrando CDs que coinciden con tu búsqueda</p>
+    <?php if (isset($_SESSION['identity']) && $_SESSION['identity']->rol == 'admin'): ?>
+        <div class="admin-controls" style="text-align: center; margin: 20px 0;">
+            <a href="crear_cd.php"
+                class="button button-red"
+                style="background-color: #e74c3c; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+                + Añadir Nuevo CD
+            </a>
         </div>
     <?php endif; ?>
+
+    <?php $searchPlaceholder = "Buscar CDs por título, artista o género..."; ?>
 
     <section class="filters-section">
         <div class="filters">
@@ -65,42 +64,74 @@ $basePath = "../";
 
     <section class="products-section">
         <div class="products-grid">
-            <div class="product-card cd-card">
-                <div class="product-image cd-image">
-                    <span class="cd-label">CD</span>
-                </div>
-                <div class="product-info">
-                    <h3>The Dark Side of the Moon</h3>
-                    <p class="artist">Pink Floyd</p>
-                    <p class="genre">Rock Progresivo • 1973</p>
-                    <div class="rating">
-                        ★★★★☆ <span class="rating-count">(128)</span>
-                    </div>
-                    <div class="price-section">
-                        <span class="price">$24.99</span>
-                        <span class="original-price">$29.99</span>
-                    </div>
-                    <button class="add-to-cart">Añadir al Carrito</button>
-                </div>
-            </div>
 
-            <div class="product-card cd-card">
-                <div class="product-image cd-image">
-                    <span class="cd-label">CD</span>
-                </div>
-                <div class="product-info">
-                    <h3>Thriller</h3>
-                    <p class="artist">Michael Jackson</p>
-                    <p class="genre">Pop • 1982</p>
-                    <div class="rating">
-                        ★★★★★ <span class="rating-count">(256)</span>
+            <?php
+            // 1. CONEXIÓN RÁPIDA (Idealmente esto iría en un archivo config/db.php)
+            $db = new mysqli('localhost', 'root', '', 'ritmoretro');
+            $db->set_charset("utf8");
+
+            // 2. CONSULTA A LA BASE DE DATOS (Solo CDs)
+            $sql = "SELECT * FROM productos WHERE tipo = 'cd' ORDER BY id DESC";
+            $productos = $db->query($sql);
+
+            // 3. BUCLE PARA MOSTRAR PRODUCTOS
+            if ($productos && $productos->num_rows > 0):
+                while ($prod = $productos->fetch_object()):
+            ?>
+                    <div class="product-card cd-card">
+                        <div class="product-image cd-image">
+                            <span class="cd-label">CD</span>
+
+                            <?php
+                            // Si la imagen es 'default.jpg' o viene vacía, usa una genérica
+                            $img = $prod->imagen != null ? $prod->imagen : 'default.jpg';
+                            // Asumimos que guardas las imágenes en ../img/covers/
+                            ?>
+                            <img src="../img/covers/<?= $img ?>" alt="<?= $prod->titulo ?>" style="width:100%; height:100%; object-fit:cover;">
+                        </div>
+
+                        <div class="product-info">
+                            <h3><?= $prod->titulo ?></h3>
+                            <p class="artist"><?= $prod->artista ?></p>
+
+                            <p class="genre" style="font-size: 0.9em; color: #666;">
+                                <?= substr($prod->descripcion, 0, 30) ?>...
+                            </p>
+
+                            <div class="price-section">
+                                <span class="price">$<?= number_format($prod->precio, 2) ?></span>
+                            </div>
+
+                            <form action="../procesos/agregar_carrito.php" method="POST">
+                                <input type="hidden" name="producto_id" value="<?= $prod->id ?>">
+                                <button type="submit" class="add-to-cart">Añadir al Carrito</button>
+                            </form>
+
+                            <?php if (isset($_SESSION['identity']) && $_SESSION['identity']->rol == 'admin'): ?>
+                                <div class="admin-actions" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; display:flex; gap:5px; justify-content:center;">
+
+                                    <a href="editar_producto.php?id=<?= $prod->id ?>"
+                                        style="background-color: #f39c12; color: white; padding: 5px 15px; font-size: 0.8rem; text-decoration: none; border-radius: 3px; font-weight:bold;">
+                                        Editar
+                                    </a>
+
+                                    <a href="borrar_producto.php?id=<?= $prod->id ?>"
+                                        onclick="return confirm('¿Estás seguro de eliminar este álbum?');"
+                                        style="background-color: #c0392b; color: white; padding: 5px 15px; font-size: 0.8rem; text-decoration: none; border-radius: 3px; font-weight:bold;">
+                                        Eliminar
+                                    </a>
+
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                    <div class="price-section">
-                        <span class="price">$19.99</span>
-                    </div>
-                    <button class="add-to-cart">Añadir al Carrito</button>
-                </div>
-            </div>
+                <?php
+                endwhile;
+            else:
+                ?>
+                <p>No hay CDs disponibles en este momento.</p>
+            <?php endif; ?>
+
         </div>
     </section>
 
