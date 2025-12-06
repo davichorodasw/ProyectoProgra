@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // Confirmación para cancelar pedido
-  const cancelButtons = document.querySelectorAll(
+  /*const cancelButtons = document.querySelectorAll(
     'button[onclick*="Cancelar Pedido"]'
   );
   cancelButtons.forEach((button) => {
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function () {
         alert('Funcionalidad de cancelación en desarrollo');
       }
     });
-  });
+  });*/
 
   // Efecto hover para tarjetas de admin
   const adminCards = document.querySelectorAll('.admin-card');

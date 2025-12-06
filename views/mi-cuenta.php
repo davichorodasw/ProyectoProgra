@@ -65,10 +65,12 @@ include "../componentes/nav.php";
                     <span class="nav-icon">📋</span>
                     Mis Datos
                 </a>
-                <a href="#mis-pedidos" class="nav-item" data-target="mis-pedidos">
-                    <span class="nav-icon=">📦</span>
-                    Mis Pedidos
-                </a>
+                <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'user'): ?>
+                    <a href="#mis-pedidos" class="nav-item" data-target="mis-pedidos">
+                        <span class="nav-icon=">📦</span>
+                        Mis Pedidos
+                    </a>
+                <?php endif; ?>
                 <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
                     <a href="#admin-panel" class="nav-item" data-target="admin-panel">
                         <span class="nav-icon">⚙️</span>
@@ -94,16 +96,6 @@ include "../componentes/nav.php";
                     <div class="info-row">
                         <span class="info-label">Email:</span>
                         <span class="info-value"><?= htmlspecialchars($_SESSION['user_email']) ?></span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">ID de usuario:</span>
-                        <span class="info-value"><?= htmlspecialchars($_SESSION['user_id']) ?></span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Rol:</span>
-                        <span class="info-value role-badge <?= $_SESSION['user_role'] ?? 'user' ?>">
-                            <?= ucfirst($_SESSION['user_role'] ?? 'user') ?>
-                        </span>
                     </div>
                 </div>
 
@@ -175,12 +167,12 @@ include "../componentes/nav.php";
                                         <span class="btn-icon">👁️</span>
                                         Ver Detalles
                                     </a>
-                                    <?php if ($pedido['estado'] === 'pendiente'): ?>
+                                    <!--<?php if ($pedido['estado'] === 'pendiente'): ?>
                                         <button class="button button-small" onclick="alert('Funcionalidad en desarrollo')">
                                             <span class="btn-icon">❌</span>
                                             Cancelar Pedido
                                         </button>
-                                    <?php endif; ?>
+                                    <?php endif; ?>-->
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -216,12 +208,6 @@ include "../componentes/nav.php";
                             <span class="admin-icon">📊</span>
                             <h4>Ver Todos los Pedidos</h4>
                             <p>Gestionar pedidos de todos los usuarios</p>
-                        </a>
-
-                        <a href="../index.php?admin=1" class="admin-card">
-                            <span class="admin-icon">🏠</span>
-                            <h4>Dashboard</h4>
-                            <p>Panel de control principal</p>
                         </a>
                     </div>
                 </div>

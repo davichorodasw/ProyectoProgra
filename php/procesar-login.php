@@ -43,7 +43,7 @@ $userObj->rol = $usuario['rol'];
 $_SESSION['user_id'] = $usuario['id'];
 $_SESSION['user_name'] = $usuario['nombre'];
 $_SESSION['user_email'] = $usuario['email'];
-$_SESSION['user_rol'] = $usuario['rol'];
+$_SESSION['user_role'] = $usuario['rol'];
 $_SESSION['logged_in'] = true;
 $_SESSION['identity'] = $userObj;
 

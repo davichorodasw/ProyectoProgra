@@ -52,7 +52,6 @@ if (isset($_POST['guardar'])) {
         }
     }
 
-    // D. Insertar en Base de Datos
     $sql = "INSERT INTO productos (tipo, titulo, artista, precio, imagen, descripcion, stock) 
             VALUES ('$tipo', '$titulo', '$artista', $precio, '$imagen', '$descripcion', $stock)";
 
