@@ -25,10 +25,6 @@
             <span class="nav-icon">👥</span>
             Usuarios
         </a>
-        <a href="reportes.php" class="nav-item <?= basename($_SERVER['PHP_SELF']) === 'reportes.php' ? 'active' : '' ?>">
-            <span class="nav-icon">📈</span>
-            Reportes
-        </a>
         <div class="nav-divider"></div>
         <a href="crear_cd.php" class="nav-item <?= basename($_SERVER['PHP_SELF']) === 'crear_cd.php' ? 'active' : '' ?>">
             <span class="nav-icon">💿</span>

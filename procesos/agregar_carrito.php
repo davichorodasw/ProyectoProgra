@@ -53,7 +53,7 @@ if (isset($_POST['producto_id'])) {
                     'artista' => $producto['artista'],
                     'tipo' => $producto['tipo'],
                     'precio' => floatval($producto['precio']),
-                    'imagen' => !empty($producto['imagen']) ? $producto['imagen'] : 'default.jpg',
+                    'imagen' => !empty($producto['imagen']) ? $producto['imagen'] : 'default.png',
                     'stock' => intval($producto['stock']),
                     'cantidad' => 1
                 ];

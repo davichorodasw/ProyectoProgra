@@ -61,7 +61,7 @@ if (isset($_SESSION['carrito_mensaje'])) {
                         <div class="item-imagen">
                             <img src="../img/covers/<?= $item['imagen'] ?>"
                                 alt="<?= htmlspecialchars($item['titulo']) ?>"
-                                onerror="this.src='../img/covers/default.jpg'">
+                                onerror="this.src='../img/covers/default.png'">
                         </div>
 
                         <div class="item-info">

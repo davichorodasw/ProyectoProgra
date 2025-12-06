@@ -110,10 +110,6 @@ include "../componentes/nav.php";
                         <span class="btn-icon">🎵</span>
                         Nuevo Vinilo
                     </a>
-                    <a href="exportar_productos.php" class="button button-outline">
-                        <span class="btn-icon">📥</span>
-                        Exportar
-                    </a>
                 </div>
             </div>
 
@@ -170,7 +166,7 @@ include "../componentes/nav.php";
                                         <img src="../img/covers/<?= htmlspecialchars($producto['imagen']) ?>"
                                             alt="<?= htmlspecialchars($producto['titulo']) ?>"
                                             class="product-thumb"
-                                            onerror="this.src='../img/covers/default.jpg'">
+                                            onerror="this.src='../img/covers/default.png'">
                                     </td>
                                     <td>
                                         <strong><?= htmlspecialchars($producto['titulo']) ?></strong>
@@ -261,12 +257,6 @@ include "../componentes/nav.php";
                         <span class="summary-value"><?= array_reduce($productos, function ($carry, $item) {
                                                         return $carry + ($item['tipo'] === 'vinilo' ? 1 : 0);
                                                     }, 0) ?></span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-label">Stock Bajo (<10):< /span>
-                                <span class="summary-value text-danger"><?= array_reduce($productos, function ($carry, $item) {
-                                                                            return $carry + ($item['stock'] < 10 ? 1 : 0);
-                                                                        }, 0) ?></span>
                     </div>
                 </div>
             </div>

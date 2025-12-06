@@ -32,7 +32,7 @@ if (isset($_POST['guardar'])) {
     $precio      = floatval($_POST['precio']);
     $stock       = intval($_POST['stock']);
     $descripcion = $db->real_escape_string($_POST['descripcion']);
-    $imagen      = 'default.jpg';
+    $imagen      = 'default.png';
 
     if (isset($_FILES['imagen']) && !empty($_FILES['imagen']['name'])) {
         $file = $_FILES['imagen'];

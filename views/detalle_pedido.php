@@ -146,7 +146,7 @@ include "../componentes/nav.php";
                             <div class="producto-imagen">
                                 <img src="../img/covers/<?= htmlspecialchars($detalle['imagen']) ?>"
                                     alt="<?= htmlspecialchars($detalle['titulo']) ?>"
-                                    onerror="this.src='../img/covers/default.jpg'">
+                                    onerror="this.src='../img/covers/default.png'">
                             </div>
                             <div class="producto-info">
                                 <h4><?= htmlspecialchars($detalle['titulo']) ?></h4>

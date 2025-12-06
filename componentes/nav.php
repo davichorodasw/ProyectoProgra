@@ -6,6 +6,7 @@ define('NAV_INCLUIDO', true);
 
 $logged_in = isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true;
 $user_name = $logged_in ? $_SESSION['user_name'] : '';
+$user_role = $logged_in && isset($_SESSION['user_role']) ? $_SESSION['user_role'] : 'user';
 
 $cart_count = 0;
 if (isset($_SESSION['carrito']) && is_array($_SESSION['carrito'])) {
@@ -51,20 +52,46 @@ if (isset($_SESSION['carrito']) && is_array($_SESSION['carrito'])) {
     <?php if ($logged_in): ?>
         <div class="dropdown">
             <a href="#" class="dropbtn">
-                <!-- <span class="user-icon">👤</span> -->
-                <span class="user-name"><?php echo htmlspecialchars($user_name); ?></span>
+                <span class="user-name <?php echo $user_role === 'admin' ? 'admin' : ''; ?>">
+                    <?php echo htmlspecialchars($user_name); ?>
+                    <?php if ($user_role === 'admin'): ?>
+                        <span class="admin-badge" title="Administrador">👑</span>
+                    <?php endif; ?>
+                </span>
                 <span class="dropdown-arrow">▼</span>
             </a>
             <div class="dropdown-content">
-                <a href="<?php echo isset($basePath)
-                                ? $basePath . 'views/mi-cuenta.php'
-                                : './views/mi-cuenta.php'; ?>"
-                    <?php echo isset($currentPage) && $currentPage === 'mi-cuenta' ? 'class="active"' : ''; ?>>
-                    Mi Cuenta
-                </a>
+                <?php if ($user_role === 'admin'): ?>
+                    <!-- Para administradores: enlace al Dashboard Admin -->
+                    <a href="<?php echo isset($basePath)
+                                    ? $basePath . 'views/admin_dashboard.php'
+                                    : './views/admin_dashboard.php'; ?>"
+                        <?php echo isset($currentPage) && $currentPage === 'admin_dashboard' ? 'class="active"' : ''; ?>>
+                        <span class="menu-icon">📊</span>
+                        Dashboard Admin
+                    </a>
+                    <a href="<?php echo isset($basePath)
+                                    ? $basePath . 'views/mi-cuenta.php'
+                                    : './views/mi-cuenta.php'; ?>"
+                        <?php echo isset($currentPage) && $currentPage === 'mi-cuenta' ? 'class="active"' : ''; ?>>
+                        <span class="menu-icon">👤</span>
+                        Mi Cuenta
+                    </a>
+                <?php else: ?>
+                    <!-- Para usuarios normales: solo Mi Cuenta -->
+                    <a href="<?php echo isset($basePath)
+                                    ? $basePath . 'views/mi-cuenta.php'
+                                    : './views/mi-cuenta.php'; ?>"
+                        <?php echo isset($currentPage) && $currentPage === 'mi-cuenta' ? 'class="active"' : ''; ?>>
+                        <span class="menu-icon">👤</span>
+                        Mi Cuenta
+                    </a>
+                <?php endif; ?>
+
                 <a href="<?php echo isset($basePath)
                                 ? $basePath . 'php/logout.php'
                                 : './php/logout.php'; ?>">
+                    <span class="menu-icon">🚪</span>
                     Cerrar Sesión
                 </a>
             </div>
@@ -77,13 +104,6 @@ if (isset($_SESSION['carrito']) && is_array($_SESSION['carrito'])) {
             Iniciar sesión
         </a>
     <?php endif; ?>
-
-    <!-- <a href="<?php echo isset($basePath)
-                        ? $basePath . 'views/contacto.php'
-                        : './views/contacto.php'; ?>"
-        <?php echo isset($currentPage) && $currentPage === 'contacto' ? 'class="active"' : ''; ?>>
-        Contacto
-    </a> -->
 </nav>
 
 <link rel="stylesheet" href="<?php echo isset($basePath) ? $basePath . 'css/dropdown.css' : '../css/dropdown.css'; ?>" />
