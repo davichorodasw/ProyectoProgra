@@ -17,7 +17,7 @@ if (empty($email) || empty($password)) {
     exit;
 }
 
-$query = "SELECT id, nombre, email, password FROM usuarios WHERE email = '$email'";
+$query = "SELECT id, nombre, email, password, rol FROM usuarios WHERE email = '$email'";
 $result = mysqli_query($conn, $query);
 
 if (mysqli_num_rows($result) === 0) {
@@ -34,10 +34,18 @@ if (!password_verify($password, $usuario['password'])) {
     exit;
 }
 
+$userObj = new stdClass();
+$userObj->id = $usuario['id'];
+$userObj->nombre = $usuario['nombre'];
+$userObj->email = $usuario['email'];
+$userObj->rol = $usuario['rol'];
+
 $_SESSION['user_id'] = $usuario['id'];
 $_SESSION['user_name'] = $usuario['nombre'];
 $_SESSION['user_email'] = $usuario['email'];
+$_SESSION['user_role'] = $usuario['rol'];
 $_SESSION['logged_in'] = true;
+$_SESSION['identity'] = $userObj;
 
 header('Location: ../index.php');
 exit;

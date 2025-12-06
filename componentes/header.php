@@ -5,31 +5,55 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><?php echo isset($pageTitle) ? $pageTitle : "Ritmo Retro"; ?></title>
-    <link rel="stylesheet" href="<?php echo isset($cssPath)
-                                        ? $cssPath
-                                        : "css/styles.css"; ?>" />
+
+    <!-- Cargar configuración de rutas -->
+    <?php
+    // Intentar cargar paths.php desde diferentes ubicaciones
+    $pathsFiles = [
+        __DIR__ . '/../config/paths.php',
+        __DIR__ . '/../../config/paths.php',
+        'config/paths.php'
+    ];
+
+    $pathsLoaded = false;
+    foreach ($pathsFiles as $pathsFile) {
+        if (file_exists($pathsFile)) {
+            require_once $pathsFile;
+            $pathsLoaded = true;
+            break;
+        }
+    }
+
+    if (!$pathsLoaded) {
+        // Fallback si no existe paths.php
+        define('BASE_PATH', '/php/Proyecto1puro/ProyectoProgra/');
+        function url($path = '')
+        {
+            return BASE_PATH . ltrim($path, '/');
+        }
+        function asset($path)
+        {
+            return BASE_PATH . ltrim($path, '/');
+        }
+    }
+    ?>
+
+    <!-- Estilos principales -->
+    <link rel="stylesheet" href="<?php echo asset('css/styles.css'); ?>" />
 
     <?php if (isset($currentPage) && $currentPage === "login"): ?>
-        <link rel="stylesheet" href="<?php echo isset($cssPath)
-                                            ? str_replace("styles.css", "auth.css", $cssPath)
-                                            : "css/auth.css"; ?>" />
+        <link rel="stylesheet" href="<?php echo asset('css/auth.css'); ?>" />
     <?php endif; ?>
 
     <?php if (isset($currentPage) && $currentPage === "contacto"): ?>
-        <link rel="stylesheet" href="<?php echo isset($cssPath)
-                                            ? str_replace("styles.css", "contacto.css", $cssPath)
-                                            : "css/contacto.css"; ?>" />
-    <?php endif; ?>
-
-    <?php if (!isset($noDropdown) || !$noDropdown): ?>
-        <link rel="stylesheet" href="<?php echo isset($basePath)
-                                            ? $basePath . 'css/dropdown.css'
-                                            : 'css/dropdown.css'; ?>" />
+        <link rel="stylesheet" href="<?php echo asset('css/contacto.css'); ?>" />
     <?php endif; ?>
 
     <?php if (isset($extraCss)): ?>
-        <link rel="stylesheet" href="<?php echo $extraCss; ?>" />
+        <link rel="stylesheet" href="<?php echo asset($extraCss); ?>" />
     <?php endif; ?>
+
+    <!-- NO cargamos dropdown.css aquí, se cargará en nav.php -->
 </head>
 
 <body>
@@ -37,9 +61,7 @@
     <div class="header">
         <div class="header-content">
             <h1>Ritmo Retro</h1>
-            <img src="<?php echo isset($imgPath)
-                            ? $imgPath
-                            : "img/RitmoRetro.png"; ?>" alt="Logo Ritmo Retro" />
+            <img src="<?php echo asset('img/RitmoRetro.png'); ?>" alt="Logo Ritmo Retro" />
             <h2>En físico, todo es mejor</h2>
         </div>
     </div>

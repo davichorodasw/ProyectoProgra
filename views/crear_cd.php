@@ -1,95 +1,112 @@
 <?php
 session_start();
 
-// 1. SEGURIDAD: Verificar si es admin
 if (!isset($_SESSION['identity']) || $_SESSION['identity']->rol != 'admin') {
-    header("Location: ../index.php"); // O la ruta a tu home
+    header("Location: ../index.php");
     exit();
 }
 
-// Configuración básica de la página
 $pageTitle = "Crear Producto - Ritmo Retro";
-$cssPath = "../css/styles.css"; 
-// Ajusta las rutas de include según dónde tengas tus componentes
-include "../componentes/header.php"; 
-include "../componentes/nav.php"; 
+$cssPath = "../css/styles.css";
+$additionalCSS = ["../css/notification.css"];
+$jsPath = "../js/notification.js";
 
-// 2. LÓGICA: Procesar el formulario al enviar
-$mensaje = "";
+include "../componentes/header.php";
+include "../componentes/nav.php";
+
+$exito = false;
+$redireccion = "";
+$notificacion = null;
 
 if (isset($_POST['guardar'])) {
-    // A. Conexión a Base de Datos (Ajusta tus credenciales)
-    $db = new mysqli('localhost', 'root', '', 'ritmoretro'); // ¡Verifica usuario/pass!
-    
+    $db = new mysqli('localhost', 'root', '', 'ritmoretro');
+
     if ($db->connect_error) {
         die("Error de conexión: " . $db->connect_error);
     }
     $db->set_charset("utf8");
 
-    // B. Recoger datos
     $titulo      = $db->real_escape_string($_POST['titulo']);
     $artista     = $db->real_escape_string($_POST['artista']);
     $tipo        = $db->real_escape_string($_POST['tipo']);
     $precio      = floatval($_POST['precio']);
     $stock       = intval($_POST['stock']);
     $descripcion = $db->real_escape_string($_POST['descripcion']);
-    $imagen      = 'default.jpg'; // Imagen por defecto
+    $imagen      = 'default.png';
 
-    // C. Subir Imagen
     if (isset($_FILES['imagen']) && !empty($_FILES['imagen']['name'])) {
         $file = $_FILES['imagen'];
-        $filename = time() . "_" . $file['name']; // Nombre único
+        $filename = time() . "_" . $file['name'];
         $mimetype = $file['type'];
 
         if ($mimetype == "image/jpg" || $mimetype == 'image/jpeg' || $mimetype == 'image/png') {
-            // Asegúrate que esta carpeta exista:
-            $ruta_destino = "../img/covers/"; 
-            
+            $ruta_destino = "../img/covers/";
+
             if (!is_dir($ruta_destino)) {
                 mkdir($ruta_destino, 0777, true);
             }
-            
+
             if (move_uploaded_file($file['tmp_name'], $ruta_destino . $filename)) {
                 $imagen = $filename;
             }
         }
     }
 
-    // D. Insertar en Base de Datos (Tabla 'productos' según ritmoretro.sql)
     $sql = "INSERT INTO productos (tipo, titulo, artista, precio, imagen, descripcion, stock) 
             VALUES ('$tipo', '$titulo', '$artista', $precio, '$imagen', '$descripcion', $stock)";
 
     if ($db->query($sql)) {
-        // Redirigir al listado correspondiente
-        $pag = ($tipo == 'cd') ? 'cds.php' : 'vinilos.php';
-        echo "<script>alert('Producto creado con éxito'); window.location.href='$pag';</script>";
+        $exito = true;
+        $redireccion = ($tipo == 'cd') ? 'cds.php' : 'vinilos.php';
+        $notificacion = [
+            'type' => 'success',
+            'title' => '¡Producto creado con éxito!',
+            'message' => 'Redirigiendo a ' . ($tipo == 'cd' ? 'CDs' : 'Vinilos') . '...',
+            'redirect' => $redireccion
+        ];
     } else {
-        $mensaje = "<div style='color:red'>Error al guardar: " . $db->error . "</div>";
+        $notificacion = [
+            'type' => 'error',
+            'title' => 'Error al guardar',
+            'message' => 'No se pudo crear el producto. Error: ' . $db->error
+        ];
     }
-    
+
     $db->close();
 }
 ?>
 
 <main class="main-content">
+    <?php if ($notificacion): ?>
+        <div id="php-notification"
+            data-type="<?= htmlspecialchars($notificacion['type']) ?>"
+            data-title="<?= htmlspecialchars($notificacion['title']) ?>"
+            data-message="<?= htmlspecialchars($notificacion['message']) ?>"
+            <?php if (isset($notificacion['redirect'])): ?>
+            data-redirect="<?= htmlspecialchars($notificacion['redirect']) ?>"
+            <?php endif; ?>
+            style="display: none;">
+        </div>
+    <?php endif; ?>
+
     <div class="page-header">
         <h1>Añadir Nuevo Producto al Catálogo</h1>
     </div>
 
     <div class="form-container" style="max-width: 600px; margin: 0 auto; padding: 20px;">
-        
-        <?= $mensaje ?>
-
         <form action="" method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 15px;">
-            
+
             <div class="form-group">
                 <label for="titulo"><strong>Título del Álbum:</strong></label>
-                <input type="text" name="titulo" required style="width: 100%; padding: 8px;" placeholder="Ej. Dark Side of the Moon">
+                <input type="text" name="titulo" required style="width: 100%; padding: 8px;"
+                    value="<?= isset($_POST['titulo']) && !$exito ? htmlspecialchars($_POST['titulo']) : '' ?>"
+                    placeholder="Ej. Dark Side of the Moon">
             </div>
 
             <div class="form-group">
                 <label for="artista"><strong>Artista / Banda:</strong></label>
-                <input type="text" name="artista" required style="width: 100%; padding: 8px;">
+                <input type="text" name="artista" required style="width: 100%; padding: 8px;"
+                    value="<?= isset($_POST['artista']) && !$exito ? htmlspecialchars($_POST['artista']) : '' ?>">
             </div>
 
             <div class="form-group">
@@ -102,17 +119,19 @@ if (isset($_POST['guardar'])) {
             <div style="display: flex; gap: 20px;">
                 <div class="form-group" style="flex: 1;">
                     <label for="precio"><strong>Precio ($):</strong></label>
-                    <input type="number" name="precio" step="0.01" required style="width: 100%; padding: 8px;">
+                    <input type="number" name="precio" step="0.01" required style="width: 100%; padding: 8px;"
+                        value="<?= isset($_POST['precio']) && !$exito ? htmlspecialchars($_POST['precio']) : '' ?>">
                 </div>
                 <div class="form-group" style="flex: 1;">
                     <label for="stock"><strong>Stock:</strong></label>
-                    <input type="number" name="stock" required style="width: 100%; padding: 8px;">
+                    <input type="number" name="stock" required style="width: 100%; padding: 8px;"
+                        value="<?= isset($_POST['stock']) && !$exito ? htmlspecialchars($_POST['stock']) : '' ?>">
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="descripcion"><strong>Descripción:</strong></label>
-                <textarea name="descripcion" rows="4" style="width: 100%; padding: 8px;"></textarea>
+                <textarea name="descripcion" rows="4" style="width: 100%; padding: 8px;"><?= isset($_POST['descripcion']) && !$exito ? htmlspecialchars($_POST['descripcion']) : '' ?></textarea>
             </div>
 
             <div class="form-group">
@@ -123,7 +142,7 @@ if (isset($_POST['guardar'])) {
             <button type="submit" name="guardar" class="button button-red" style="padding: 15px; cursor: pointer; background-color: #e74c3c; color: white; border: none; font-weight: bold;">
                 Guardar Producto
             </button>
-            
+
             <a href="cds.php" style="text-align: center; display: block; margin-top: 10px;">Cancelar</a>
         </form>
     </div>

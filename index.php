@@ -1,10 +1,14 @@
 <?php
 session_start();
+
 $pageTitle = "Ritmo Retro";
 $currentPage = "inicio";
+
+require_once 'config/paths.php';
+
+include "componentes/header.php";
+include "componentes/nav.php";
 ?>
-<?php include "componentes/header.php"; ?>
-<?php include "componentes/nav.php"; ?>
 
 <main class="main-content">
     <section class="hero">

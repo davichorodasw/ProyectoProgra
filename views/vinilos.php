@@ -93,7 +93,7 @@ $basePath = "../";
                         <div class="product-image vinyl-image">
                             <span class="vinyl-label">Vinilo</span>
 
-                            <?php $img = $prod->imagen != null ? $prod->imagen : 'default.jpg'; ?>
+                            <?php $img = $prod->imagen != null ? $prod->imagen : 'default.png'; ?>
                             <img src="../img/covers/<?= $img ?>" alt="<?= $prod->titulo ?>" style="width:100%; height:100%; object-fit:cover;">
                         </div>
 

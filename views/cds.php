@@ -8,6 +8,7 @@ $basePath = "../";
 ?>
 <?php include "../componentes/header.php"; ?>
 <?php include "../componentes/nav.php"; ?>
+<?php require_once '../config/paths.php'; ?>
 
 <main class="main-content">
     <div class="page-header">
@@ -83,8 +84,8 @@ $basePath = "../";
                             <span class="cd-label">CD</span>
 
                             <?php
-                            // Si la imagen es 'default.jpg' o viene vacía, usa una genérica
-                            $img = $prod->imagen != null ? $prod->imagen : 'default.jpg';
+                            // Si la imagen es 'default.png' o viene vacía, usa una genérica
+                            $img = $prod->imagen != null ? $prod->imagen : 'default.png';
                             // Asumimos que guardas las imágenes en ../img/covers/
                             ?>
                             <img src="../img/covers/<?= $img ?>" alt="<?= $prod->titulo ?>" style="width:100%; height:100%; object-fit:cover;">
