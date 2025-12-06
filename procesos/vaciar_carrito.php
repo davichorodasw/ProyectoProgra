@@ -17,6 +17,5 @@ if (isset($_SESSION['carrito']) && is_array($_SESSION['carrito']) && count($_SES
     ];
 }
 
-// Redirigir al carrito
 header("Location: ../views/carrito.php");
 exit();

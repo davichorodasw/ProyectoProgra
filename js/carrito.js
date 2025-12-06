@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
   console.log('Carrito JS cargado');
 
-  // Esta función solo para actualización visual local (opcional)
   const cantidadForms = document.querySelectorAll('.cantidad-form');
 
   cantidadForms.forEach((form) => {
@@ -9,12 +8,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const menosBtn = form.querySelector('button[value="menos"]');
     const masBtn = form.querySelector('button[value="mas"]');
 
-    // Solo para actualización visual, NO envía el formulario
     menosBtn.addEventListener('click', function (e) {
       let value = parseInt(input.value);
       if (value > 1) {
         input.value = value - 1;
-        // NO llamar a form.submit() aquí
       }
     });
 
@@ -22,7 +19,6 @@ document.addEventListener('DOMContentLoaded', function () {
       let value = parseInt(input.value);
       if (value < 99) {
         input.value = value + 1;
-        // NO llamar a form.submit() aquí
       }
     });
   });
@@ -58,7 +54,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Actualizar total localmente (opcional)
   function updateItemSubtotal(item) {
     const cantidad = parseInt(item.querySelector('.cantidad-input').value);
     const precioUnitario = parseFloat(
@@ -78,10 +73,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function updateCartTotal() {
     console.log('Actualizando total del carrito...');
-    // Implementar si es necesario
   }
 
-  // Para notificaciones PHP
   if (document.getElementById('php-notification-toast')) {
     setTimeout(() => {
       const toast = document.getElementById('php-notification-toast');

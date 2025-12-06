@@ -5,7 +5,6 @@ if (isset($_POST['item_index']) && isset($_POST['accion'])) {
     $index = intval($_POST['item_index']);
     $accion = $_POST['accion'];
 
-    // Verificar que el índice existe en el carrito
     if (!isset($_SESSION['carrito'][$index])) {
         $_SESSION['carrito_mensaje_temp'] = [
             'tipo' => 'error',
@@ -16,12 +15,10 @@ if (isset($_POST['item_index']) && isset($_POST['accion'])) {
         exit();
     }
 
-    // Obtener datos del producto en el carrito
     $producto_id = $_SESSION['carrito'][$index]['id'];
     $cantidad_actual = $_SESSION['carrito'][$index]['cantidad'];
     $nueva_cantidad = $cantidad_actual;
 
-    // Verificar stock
     require_once '../php/conexion.php';
     $conn = conectarDB();
 
@@ -35,7 +32,6 @@ if (isset($_POST['item_index']) && isset($_POST['accion'])) {
         $producto = mysqli_fetch_assoc($result);
         $stock_disponible = $producto['stock'];
 
-        // Actualizar cantidad según la acción
         if ($accion == 'mas') {
             if ($cantidad_actual < $stock_disponible) {
                 $nueva_cantidad = $cantidad_actual + 1;
@@ -70,7 +66,6 @@ if (isset($_POST['item_index']) && isset($_POST['accion'])) {
             }
         }
 
-        // Actualizar stock en la sesión
         $_SESSION['carrito'][$index]['stock'] = $stock_disponible;
 
         mysqli_stmt_close($stmt);
@@ -85,6 +80,5 @@ if (isset($_POST['item_index']) && isset($_POST['accion'])) {
     mysqli_close($conn);
 }
 
-// Redirigir al carrito
 header("Location: ../views/carrito.php");
 exit();
