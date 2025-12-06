@@ -56,8 +56,6 @@ include "../componentes/nav.php";
                     <span class="avatar-icon">👤</span>
                 </div>
                 <h3><?= htmlspecialchars($_SESSION['user_name']) ?></h3>
-                <p class="user-email"><?= htmlspecialchars($_SESSION['user_email']) ?></p>
-                <p class="user-id">ID: <?= htmlspecialchars($_SESSION['user_id']) ?></p>
             </div>
 
             <nav class="account-nav">

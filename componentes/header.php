@@ -50,7 +50,7 @@
     <?php endif; ?>
 
     <?php if (isset($extraCss)): ?>
-        <link rel="stylesheet" href="<?php echo asset($extraCss); ?>" />
+        <link rel="stylesheet" href="<?= $extraCss ?>">
     <?php endif; ?>
 
     <!-- NO cargamos dropdown.css aquí, se cargará en nav.php -->
