@@ -1,5 +1,4 @@
 <?php
-// componentes/nav.php
 if (defined('NAV_INCLUIDO')) {
     return;
 }
@@ -7,7 +6,15 @@ define('NAV_INCLUIDO', true);
 
 $logged_in = isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true;
 $user_name = $logged_in ? $_SESSION['user_name'] : '';
+
+$cart_count = 0;
+if (isset($_SESSION['carrito']) && is_array($_SESSION['carrito'])) {
+    foreach ($_SESSION['carrito'] as $item) {
+        $cart_count += isset($item['cantidad']) ? $item['cantidad'] : 1;
+    }
+}
 ?>
+
 <nav>
     <a href="<?php echo isset($basePath)
                     ? $basePath . 'index.php'
@@ -30,8 +37,18 @@ $user_name = $logged_in ? $_SESSION['user_name'] : '';
         Vinilos
     </a>
 
+    <a href="<?php echo isset($basePath)
+                    ? $basePath . 'views/carrito.php'
+                    : './views/carrito.php'; ?>"
+        class="cart-link"
+        <?php echo isset($currentPage) && $currentPage === 'carrito' ? 'class="active cart-link"' : 'class="cart-link"'; ?>>
+        Carrito
+        <?php if ($cart_count > 0): ?>
+            <span class="cart-count"><?= $cart_count ?></span>
+        <?php endif; ?>
+    </a>
+
     <?php if ($logged_in): ?>
-        <!-- Menú desplegable para usuario logueado -->
         <div class="dropdown">
             <a href="#" class="dropbtn">
                 <!-- <span class="user-icon">👤</span> -->
@@ -53,7 +70,6 @@ $user_name = $logged_in ? $_SESSION['user_name'] : '';
             </div>
         </div>
     <?php else: ?>
-        <!-- Usuario no logueado -->
         <a href="<?php echo isset($basePath)
                         ? $basePath . 'views/login.php'
                         : './views/login.php'; ?>"

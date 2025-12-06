@@ -1,15 +1,13 @@
 <?php
-// php/procesar-registro.php
 require_once 'conexion.php';
 
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../views/register.php'); // RUTA CORREGIDA
+    header('Location: ../views/register.php');
     exit;
 }
 
-// Recoger y sanitizar datos
 $conn = conectarDB();
 $name = mysqli_real_escape_string($conn, trim($_POST['name']));
 $email = mysqli_real_escape_string($conn, trim($_POST['email']));
@@ -18,7 +16,6 @@ $password = $_POST['password'];
 $password_confirmation = $_POST['password_confirmation'];
 $terms = isset($_POST['terms']) ? 1 : 0;
 
-// Validaciones básicas
 $errors = [];
 
 if (empty($name)) {
@@ -41,7 +38,6 @@ if (!$terms) {
     $errors[] = 'Debes aceptar los términos y condiciones';
 }
 
-// Si hay errores, redirigir con mensajes
 if (!empty($errors)) {
     $error_string = urlencode(implode('|', $errors));
     $query = http_build_query([
@@ -54,7 +50,6 @@ if (!empty($errors)) {
     exit;
 }
 
-// Verificar si el email ya existe
 $checkEmailQuery = "SELECT id FROM usuarios WHERE email = '$email'";
 $result = mysqli_query($conn, $checkEmailQuery);
 
@@ -73,13 +68,27 @@ if (mysqli_num_rows($result) > 0) {
 // Hash de la contraseña
 $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
-// Insertar usuario en la base de datos
 $insertQuery = "INSERT INTO usuarios (nombre, email, telefono, password) 
                 VALUES ('$name', '$email', '$phone', '$password_hash')";
 
 if (mysqli_query($conn, $insertQuery)) {
+    $user_id = mysqli_insert_id($conn);
+
+    $_SESSION['user_id'] = $user_id;
+    $_SESSION['user_name'] = $name;
+    $_SESSION['user_email'] = $email;
+    $_SESSION['user_rol'] = 'user';
+    $_SESSION['logged_in'] = true;
+
+    $userObj = new stdClass();
+    $userObj->id = $user_id;
+    $userObj->nombre = $name;
+    $userObj->email = $email;
+    $userObj->rol = 'user';
+    $_SESSION['identity'] = $userObj;
+
     mysqli_close($conn);
-    header('Location: ../views/register.php?success=true');
+    header('Location: ../index.php');
     exit;
 } else {
     $error = mysqli_error($conn);
