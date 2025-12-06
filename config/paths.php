@@ -1,6 +1,11 @@
 <?php
-define('BASE_PATH', '/php/Proyecto1puro/ProyectoProgra/');
-define('BASE_URL', 'http://localhost' . BASE_PATH);
+if (!defined('BASE_PATH')) {
+    define('BASE_PATH', '/php/Proyecto1puro/ProyectoProgra/');
+}
+
+if (!defined('BASE_URL')) {
+    define('BASE_URL', 'http://localhost' . BASE_PATH);
+}
 
 function url($path = '')
 {
