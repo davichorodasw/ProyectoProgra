@@ -8,6 +8,7 @@ $basePath = "../";
 ?>
 <?php include "../componentes/header.php"; ?>
 <?php include "../componentes/nav.php"; ?>
+<?php require_once '../config/paths.php'; ?>
 
 <main class="main-content">
     <div class="page-header">

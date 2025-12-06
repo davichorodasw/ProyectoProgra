@@ -1,9 +1,6 @@
 <!-- Admin Sidebar Component -->
 <div class="admin-sidebar">
     <div class="sidebar-header">
-        <div class="admin-avatar">
-            <span class="avatar-icon">👑</span>
-        </div>
         <h3><?= htmlspecialchars($_SESSION['user_name']) ?></h3>
         <p class="admin-role">Administrador</p>
     </div>
