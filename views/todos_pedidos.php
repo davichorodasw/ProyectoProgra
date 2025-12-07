@@ -339,15 +339,114 @@ include "../componentes/nav.php";
 </main>
 
 <script>
-    function actualizarEstado(pedidoId, nuevoEstado) {
-        console.log('Iniciando actualización de estado:', {
-            pedidoId,
-            nuevoEstado
-        });
+    (function() {
+        const toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        toastContainer.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10000;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-width: 400px;
+    `;
+        document.body.appendChild(toastContainer);
 
+        window.showToast = function(message, type = 'info', duration = 3000) {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+
+            let icon = 'ℹ';
+            if (type === 'success') icon = '✓';
+            if (type === 'error') icon = '✗';
+            if (type === 'warning') icon = '⚠';
+
+            toast.innerHTML = `
+            <div class="toast-icon">${icon}</div>
+            <div class="toast-message">${message}</div>
+            <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+        `;
+
+            toast.style.cssText = `
+            background: ${type === 'success' ? '#4CAF50' : 
+                         type === 'error' ? '#f44336' : 
+                         type === 'warning' ? '#ff9800' : '#2196F3'};
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: toastSlideIn 0.3s ease;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 14px;
+            min-width: 300px;
+            max-width: 400px;
+        `;
+
+            const toastStyle = document.createElement('style');
+            if (!document.querySelector('#toast-styles')) {
+                toastStyle.id = 'toast-styles';
+                toastStyle.textContent = `
+                @keyframes toastSlideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes toastSlideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+                .toast-icon {
+                    font-size: 18px;
+                    font-weight: bold;
+                    flex-shrink: 0;
+                }
+                .toast-message {
+                    flex: 1;
+                    line-height: 1.4;
+                }
+                .toast-close {
+                    background: none;
+                    border: none;
+                    color: white;
+                    font-size: 20px;
+                    cursor: pointer;
+                    padding: 0;
+                    line-height: 1;
+                    flex-shrink: 0;
+                    opacity: 0.8;
+                }
+                .toast-close:hover {
+                    opacity: 1;
+                }
+            `;
+                document.head.appendChild(toastStyle);
+            }
+
+            toastContainer.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'toastSlideOut 0.3s ease';
+                setTimeout(() => {
+                    if (toast.parentNode) toast.remove();
+                }, 300);
+            }, duration);
+        };
+
+        window.showSuccessToast = function(message, duration = 3000) {
+            showToast(message, 'success', duration);
+        };
+
+        window.showErrorToast = function(message, duration = 5000) {
+            showToast(message, 'error', duration);
+        };
+    })();
+
+    function actualizarEstado(pedidoId, nuevoEstado) {
         if (!confirm('¿Cambiar estado del pedido #' + pedidoId.toString().padStart(6, '0') + ' a "' + nuevoEstado + '"?')) {
-            console.log('Usuario canceló la acción');
-            location.reload();
             return;
         }
 
@@ -355,47 +454,37 @@ include "../componentes/nav.php";
         formData.append('pedido_id', pedidoId);
         formData.append('estado', nuevoEstado);
 
-        console.log('Enviando datos a:', '../php/actualizar_estado_pedido.php');
+        const select = document.querySelector(`select[data-pedido-id="${pedidoId}"]`);
+        const originalState = select.value;
+        select.disabled = true;
+        select.style.opacity = '0.7';
 
         fetch('../php/actualizar_estado_pedido.php', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => {
-                console.log('Status:', response.status, 'OK:', response.ok);
-                return response.text().then(text => {
-                    console.log('Respuesta completa:', text);
-                    try {
-                        return JSON.parse(text);
-                    } catch (e) {
-                        console.error('Error parseando JSON:', e);
-                        console.error('Texto recibido:', text);
-                        throw new Error('Respuesta no es JSON válido: ' + text.substring(0, 200));
-                    }
-                });
-            })
+            .then(response => response.json())
             .then(data => {
-                console.log('JSON parseado:', data);
+                select.disabled = false;
+                select.style.opacity = '1';
 
                 if (data.success) {
-                    const select = document.querySelector(`select[data-pedido-id="${pedidoId}"]`);
-                    if (select) {
-                        select.classList.remove('status-pendiente', 'status-procesando', 'status-completado', 'status-cancelado');
-                        select.classList.add('status-' + nuevoEstado);
-                        select.value = nuevoEstado;
-                    }
+                    select.classList.remove('status-pendiente', 'status-procesando', 'status-completado', 'status-cancelado');
+                    select.classList.add('status-' + nuevoEstado);
+                    select.value = nuevoEstado;
 
-                    alert('✅ Estado actualizado correctamente');
-
+                    showSuccessToast(`Pedido #${pedidoId.toString().padStart(6, '0')} actualizado a: ${nuevoEstado}`);
                 } else {
-                    alert('❌ Error: ' + (data.message || 'Error desconocido'));
-                    setTimeout(() => location.reload(), 1000);
+                    select.value = originalState;
+                    showErrorToast(data.message || 'Error al actualizar estado');
                 }
             })
             .catch(error => {
-                console.error('Error en fetch:', error);
-                alert('❌ Error: ' + error.message);
-                setTimeout(() => location.reload(), 1000);
+                select.disabled = false;
+                select.style.opacity = '1';
+                select.value = originalState;
+                showErrorToast('Error de conexión. Intenta nuevamente.');
+                console.error('Error:', error);
             });
     }
 </script>
