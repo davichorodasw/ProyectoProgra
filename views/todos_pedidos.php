@@ -14,8 +14,7 @@ $currentPage = "admin";
 $cssPath = "../css/styles.css";
 $imgPath = "../img/RitmoRetro.png";
 $basePath = "../";
-$extraCss = "../css/admin.css";
-$additionalCss = "../css/todos-pedidos.css";
+$extraCss = ["../css/admin.css", "../css/todos-pedidos.css"];
 
 require_once '../php/conexion.php';
 $conn = conectarDB();

@@ -50,7 +50,13 @@
     <?php endif; ?>
 
     <?php if (isset($extraCss)): ?>
-        <link rel="stylesheet" href="<?= $extraCss ?>">
+        <?php if (is_array($extraCss)): ?>
+            <?php foreach ($extraCss as $css): ?>
+                <link rel="stylesheet" href="<?= $css ?>">
+            <?php endforeach; ?>
+        <?php else: ?>
+            <link rel="stylesheet" href="<?= $extraCss ?>">
+        <?php endif; ?>
     <?php endif; ?>
 
     <!-- NO cargamos dropdown.css aquí, se cargará en nav.php -->

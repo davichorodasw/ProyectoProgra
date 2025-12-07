@@ -1,11 +1,9 @@
 <?php
-// Evitar inclusión múltiple
 if (defined('NAV_INCLUIDO')) {
     return;
 }
 define('NAV_INCLUIDO', true);
 
-// Si no se cargó paths.php en header.php, cargarlo aquí
 if (!defined('BASE_PATH')) {
     $pathsFiles = [
         __DIR__ . '/../config/paths.php',
@@ -32,12 +30,10 @@ if (!defined('BASE_PATH')) {
     }
 }
 
-// Obtener información de sesión
 $logged_in = isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true;
 $user_name = $logged_in ? ($_SESSION['user_name'] ?? 'Usuario') : '';
 $user_role = $logged_in && isset($_SESSION['user_role']) ? $_SESSION['user_role'] : 'user';
 
-// Calcular items en carrito
 $cart_count = 0;
 if (isset($_SESSION['carrito']) && is_array($_SESSION['carrito'])) {
     foreach ($_SESSION['carrito'] as $item) {
@@ -45,7 +41,6 @@ if (isset($_SESSION['carrito']) && is_array($_SESSION['carrito'])) {
     }
 }
 
-// Determinar página activa basada en script actual
 $current_script = $_SERVER['PHP_SELF'] ?? '';
 $active_page = '';
 
@@ -67,25 +62,21 @@ if (strpos($current_script, 'index.php') !== false) {
 ?>
 
 <nav class="main-nav">
-    <!-- Logo/Inicio -->
     <a href="<?php echo url('index.php'); ?>"
         class="nav-link <?php echo $active_page === 'inicio' ? 'active' : ''; ?>">
         Inicio
     </a>
 
-    <!-- CDs -->
     <a href="<?php echo url('views/cds.php'); ?>"
         class="nav-link <?php echo $active_page === 'cds' ? 'active' : ''; ?>">
         CDs
     </a>
 
-    <!-- Vinilos -->
     <a href="<?php echo url('views/vinilos.php'); ?>"
         class="nav-link <?php echo $active_page === 'vinilos' ? 'active' : ''; ?>">
         Vinilos
     </a>
 
-    <!-- Carrito (no para administradores) -->
     <?php if (!$logged_in || ($logged_in && $user_role !== 'admin')): ?>
         <a href="<?php echo url('views/carrito.php'); ?>"
             class="nav-link cart-link <?php echo $active_page === 'carrito' ? 'active' : ''; ?>">
@@ -96,7 +87,6 @@ if (strpos($current_script, 'index.php') !== false) {
         </a>
     <?php endif; ?>
 
-    <!-- Dropdown de usuario o login -->
     <?php if ($logged_in): ?>
         <div class="dropdown" id="userDropdownContainer">
             <button class="dropbtn" id="userDropdownBtn">
@@ -137,13 +127,14 @@ if (strpos($current_script, 'index.php') !== false) {
     <?php endif; ?>
 </nav>
 
-<!-- Cargar CSS y JS del dropdown SOLO UNA VEZ -->
-<?php if (!isset($dropdown_loaded)): ?>
-    <?php $dropdown_loaded = true; ?>
-    <link rel="stylesheet" href="<?php echo asset('css/dropdown.css'); ?>">
-    <script src="<?php echo asset('js/dropdown.js'); ?>" defer></script>
-    <script>
-        console.log('Nav loaded - Current page:', '<?php echo $active_page; ?>');
-        console.log('Base path:', '<?php echo BASE_PATH; ?>');
-    </script>
-<?php endif; ?>
+<script>
+    console.log('BASE_URL:', '<?php echo BASE_URL; ?>');
+    console.log('Document location:', window.location.href);
+</script>
+
+<link rel="stylesheet" href="<?php echo BASE_URL; ?>css/dropdown.css">
+<script src="<?php echo BASE_URL; ?>js/dropdown.js" defer></script>
+
+<script>
+    console.log('Dropdown resources loaded for page:', '<?php echo $active_page; ?>');
+</script>
