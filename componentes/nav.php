@@ -4,29 +4,57 @@ if (defined('NAV_INCLUIDO')) {
 }
 define('NAV_INCLUIDO', true);
 
-if (!defined('BASE_PATH')) {
-    $pathsFiles = [
-        __DIR__ . '/../config/paths.php',
-        __DIR__ . '/../../config/paths.php'
-    ];
+// Iniciar sesión si no está iniciada
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-    foreach ($pathsFiles as $pathsFile) {
-        if (file_exists($pathsFile)) {
-            require_once $pathsFile;
-            break;
-        }
+// Incluir paths.php
+$pathsFiles = [
+    __DIR__ . '/../config/paths.php',
+    __DIR__ . '/../../config/paths.php',
+    __DIR__ . '/../../../config/paths.php'
+];
+
+$found = false;
+foreach ($pathsFiles as $pathsFile) {
+    if (file_exists($pathsFile)) {
+        require_once $pathsFile;
+        $found = true;
+        break;
+    }
+}
+
+if (!$found) {
+    // Si no se encuentra paths.php, definir valores por defecto
+    define('BASE_PATH', '/php/Proyecto1puro/ProyectoProgra/');
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+    $host = $_SERVER['HTTP_HOST'];
+    define('BASE_URL', $protocol . $host . BASE_PATH);
+
+    function url($path = '')
+    {
+        return BASE_PATH . ltrim($path, '/');
     }
 
-    if (!defined('BASE_PATH')) {
-        define('BASE_PATH', '/php/Proyecto1puro/ProyectoProgra/');
-        function url($path = '')
-        {
-            return BASE_PATH . ltrim($path, '/');
-        }
-        function asset($path)
-        {
-            return BASE_PATH . ltrim($path, '/');
-        }
+    function asset($path)
+    {
+        return BASE_URL . ltrim($path, '/');
+    }
+}
+
+// Asegurarse de que las funciones existen
+if (!function_exists('url')) {
+    function url($path = '')
+    {
+        return BASE_PATH . ltrim($path, '/');
+    }
+}
+
+if (!function_exists('asset')) {
+    function asset($path)
+    {
+        return BASE_URL . ltrim($path, '/');
     }
 }
 
@@ -92,9 +120,6 @@ if (strpos($current_script, 'index.php') !== false) {
             <button class="dropbtn" id="userDropdownBtn">
                 <span class="user-info">
                     <span class="user-name"><?php echo htmlspecialchars($user_name); ?></span>
-                    <?php if ($user_role === 'admin'): ?>
-                        <span class="admin-indicator" title="Administrador">👑</span>
-                    <?php endif; ?>
                     <span class="dropdown-arrow">▼</span>
                 </span>
             </button>
@@ -128,12 +153,17 @@ if (strpos($current_script, 'index.php') !== false) {
 </nav>
 
 <script>
-    console.log('BASE_URL:', '<?php echo BASE_URL; ?>');
-    console.log('Document location:', window.location.href);
+    console.log('=== NAV DEBUG INFO ===');
+    console.log('Page: <?php echo $active_page; ?>');
+    console.log('Logged in: <?php echo $logged_in ? "true" : "false"; ?>');
+    console.log('User role: <?php echo $user_role; ?>');
+    console.log('BASE_URL: <?php echo BASE_URL; ?>');
+    console.log('Script path: <?php echo asset("js/dropdown.js"); ?>');
+    console.log('========================');
 </script>
 
-<link rel="stylesheet" href="<?php echo BASE_URL; ?>css/dropdown.css">
-<script src="<?php echo BASE_URL; ?>js/dropdown.js" defer></script>
+<link rel="stylesheet" href="<?php echo asset('css/dropdown.css'); ?>">
+<script src="<?php echo asset('js/dropdown.js'); ?>" defer></script>
 
 <script>
     console.log('Dropdown resources loaded for page:', '<?php echo $active_page; ?>');

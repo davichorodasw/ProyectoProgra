@@ -4,7 +4,9 @@ if (!defined('BASE_PATH')) {
 }
 
 if (!defined('BASE_URL')) {
-    define('BASE_URL', 'http://localhost' . BASE_PATH);
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+    $host = $_SERVER['HTTP_HOST'];
+    define('BASE_URL', $protocol . $host . BASE_PATH);
 }
 
 function url($path = '')
@@ -14,7 +16,7 @@ function url($path = '')
 
 function asset($path)
 {
-    return BASE_PATH . ltrim($path, '/');
+    return BASE_URL . ltrim($path, '/');
 }
 
 function isInViews()
