@@ -1,78 +1,131 @@
 <?php
 session_start();
 
-// Verificar si es admin
+header('Content-Type: application/json');
+
 if (
     !isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true ||
     !isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin'
 ) {
-    header('HTTP/1.1 403 Forbidden');
+    http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Acceso no autorizado']);
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('HTTP/1.1 405 Method Not Allowed');
+    http_response_code(405);
     echo json_encode(['success' => false, 'message' => 'Método no permitido']);
     exit;
 }
 
-$pedido_id = $_POST['pedido_id'] ?? 0;
-$estado = $_POST['estado'] ?? '';
+$pedido_id = isset($_POST['pedido_id']) ? intval($_POST['pedido_id']) : 0;
+$estado = isset($_POST['estado']) ? trim($_POST['estado']) : '';
 
-// Validar datos
-if (empty($pedido_id) || empty($estado)) {
-    echo json_encode(['success' => false, 'message' => 'Datos incompletos']);
+if ($pedido_id <= 0 || empty($estado)) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Datos inválidos',
+        'received' => ['pedido_id' => $pedido_id, 'estado' => $estado]
+    ]);
     exit;
 }
 
-// Validar estado
 $estados_permitidos = ['pendiente', 'procesando', 'completado', 'cancelado'];
 if (!in_array($estado, $estados_permitidos)) {
-    echo json_encode(['success' => false, 'message' => 'Estado no válido']);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Estado no válido',
+        'estado_recibido' => $estado
+    ]);
     exit;
 }
 
 require_once 'conexion.php';
-$conn = conectarDB();
 
-// Actualizar estado del pedido
-$query = "UPDATE pedidos SET estado = ?, fecha_actualizacion = NOW() WHERE id = ?";
-$stmt = mysqli_prepare($conn, $query);
+try {
+    $conn = new mysqli('localhost', 'root', '', 'ritmoretro');
 
-if ($stmt === false) {
-    echo json_encode(['success' => false, 'message' => 'Error en la consulta']);
-    exit;
-}
-
-mysqli_stmt_bind_param($stmt, "si", $estado, $pedido_id);
-$resultado = mysqli_stmt_execute($stmt);
-
-if ($resultado) {
-    // Si se cancela un pedido, devolver stock
-    if ($estado === 'cancelado') {
-        // Obtener detalles del pedido para devolver stock
-        $detalles_query = "SELECT producto_id, cantidad FROM detalles_pedido WHERE pedido_id = ?";
-        $detalles_stmt = mysqli_prepare($conn, $detalles_query);
-        mysqli_stmt_bind_param($detalles_stmt, "i", $pedido_id);
-        mysqli_stmt_execute($detalles_stmt);
-        $detalles_result = mysqli_stmt_get_result($detalles_stmt);
-
-        while ($detalle = mysqli_fetch_assoc($detalles_result)) {
-            $update_stock = "UPDATE productos SET stock = stock + ? WHERE id = ?";
-            $update_stmt = mysqli_prepare($conn, $update_stock);
-            mysqli_stmt_bind_param($update_stmt, "ii", $detalle['cantidad'], $detalle['producto_id']);
-            mysqli_stmt_execute($update_stmt);
-            mysqli_stmt_close($update_stmt);
-        }
-
-        mysqli_stmt_close($detalles_stmt);
+    if ($conn->connect_error) {
+        throw new Exception('Error de conexión a la base de datos');
     }
 
-    echo json_encode(['success' => true, 'message' => 'Estado actualizado correctamente']);
-} else {
-    echo json_encode(['success' => false, 'message' => 'Error al actualizar el estado']);
-}
+    $conn->set_charset('utf8');
 
-mysqli_stmt_close($stmt);
-mysqli_close($conn);
+    $sql_check = "SELECT id FROM pedidos WHERE id = ?";
+    $stmt_check = $conn->prepare($sql_check);
+
+    if (!$stmt_check) {
+        throw new Exception('Error al preparar verificación');
+    }
+
+    $stmt_check->bind_param('i', $pedido_id);
+    $stmt_check->execute();
+    $stmt_check->store_result();
+
+    if ($stmt_check->num_rows === 0) {
+        $stmt_check->close();
+        $conn->close();
+        echo json_encode(['success' => false, 'message' => 'Pedido no encontrado']);
+        exit;
+    }
+
+    $stmt_check->close();
+
+    $sql_update = "UPDATE pedidos SET estado = ?, fecha_actualizacion = NOW() WHERE id = ?";
+    $stmt_update = $conn->prepare($sql_update);
+
+    if (!$stmt_update) {
+        throw new Exception('Error al preparar actualización');
+    }
+
+    $stmt_update->bind_param('si', $estado, $pedido_id);
+
+    if (!$stmt_update->execute()) {
+        throw new Exception('Error al ejecutar actualización');
+    }
+
+    $affected_rows = $stmt_update->affected_rows;
+    $stmt_update->close();
+
+    if ($estado === 'cancelado') {
+        $sql_detalles = "SELECT producto_id, cantidad FROM detalles_pedido WHERE pedido_id = ?";
+        $stmt_detalles = $conn->prepare($sql_detalles);
+
+        if ($stmt_detalles) {
+            $stmt_detalles->bind_param('i', $pedido_id);
+            $stmt_detalles->execute();
+            $result_detalles = $stmt_detalles->get_result();
+
+            while ($detalle = $result_detalles->fetch_assoc()) {
+                $sql_stock = "UPDATE productos SET stock = stock + ? WHERE id = ?";
+                $stmt_stock = $conn->prepare($sql_stock);
+
+                if ($stmt_stock) {
+                    $stmt_stock->bind_param('ii', $detalle['cantidad'], $detalle['producto_id']);
+                    $stmt_stock->execute();
+                    $stmt_stock->close();
+                }
+            }
+
+            $stmt_detalles->close();
+        }
+    }
+
+    $conn->close();
+
+    echo json_encode([
+        'success' => true,
+        'message' => 'Estado actualizado correctamente',
+        'pedido_id' => $pedido_id,
+        'nuevo_estado' => $estado,
+        'affected_rows' => $affected_rows
+    ]);
+} catch (Exception $e) {
+    if (ob_get_length()) ob_clean();
+
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Error interno: ' . $e->getMessage()
+    ]);
+}
