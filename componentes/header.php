@@ -6,13 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><?php echo isset($pageTitle) ? $pageTitle : "Ritmo Retro"; ?></title>
 
-    <!-- Cargar configuración de rutas -->
     <?php
-    // Intentar cargar paths.php desde diferentes ubicaciones
     $pathsFiles = [
         __DIR__ . '/../config/paths.php',
-        __DIR__ . '/../../config/paths.php',
-        'config/paths.php'
+        __DIR__ . '/../../config/paths.php'
     ];
 
     $pathsLoaded = false;
@@ -25,15 +22,17 @@
     }
 
     if (!$pathsLoaded) {
-        // Fallback si no existe paths.php
-        define('BASE_PATH', '/php/Proyecto1puro/ProyectoProgra/');
+        define('BASE_PATH', '/');
+        define('BASE_URL', (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . '/');
+
         function url($path = '')
         {
             return BASE_PATH . ltrim($path, '/');
         }
+
         function asset($path)
         {
-            return BASE_PATH . ltrim($path, '/');
+            return BASE_URL . ltrim($path, '/');
         }
     }
     ?>
@@ -58,8 +57,6 @@
             <link rel="stylesheet" href="<?= $extraCss ?>">
         <?php endif; ?>
     <?php endif; ?>
-
-    <!-- NO cargamos dropdown.css aquí, se cargará en nav.php -->
 </head>
 
 <body>

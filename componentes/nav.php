@@ -9,11 +9,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Incluir paths.php
+// Cargar paths.php
 $pathsFiles = [
     __DIR__ . '/../config/paths.php',
-    __DIR__ . '/../../config/paths.php',
-    __DIR__ . '/../../../config/paths.php'
+    __DIR__ . '/../../config/paths.php'
 ];
 
 $found = false;
@@ -25,12 +24,10 @@ foreach ($pathsFiles as $pathsFile) {
     }
 }
 
+// Si no se encontró paths.php, usar valores por defecto
 if (!$found) {
-    // Si no se encuentra paths.php, definir valores por defecto
-    define('BASE_PATH', '/php/Proyecto1puro/ProyectoProgra/');
-    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
-    $host = $_SERVER['HTTP_HOST'];
-    define('BASE_URL', $protocol . $host . BASE_PATH);
+    define('BASE_PATH', '/');
+    define('BASE_URL', (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . '/');
 
     function url($path = '')
     {

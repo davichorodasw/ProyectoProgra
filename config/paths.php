@@ -1,6 +1,18 @@
 <?php
 if (!defined('BASE_PATH')) {
-    define('BASE_PATH', '/php/Proyecto1puro/ProyectoProgra/');
+    $projectRoot = __DIR__ . '/..';
+    $projectRoot = realpath($projectRoot);
+
+    $docRoot = $_SERVER['DOCUMENT_ROOT'];
+
+    if (strpos($projectRoot, $docRoot) === 0) {
+        $relativePath = substr($projectRoot, strlen($docRoot));
+        $basePath = '/' . trim(str_replace('\\', '/', $relativePath), '/') . '/';
+    } else {
+        $basePath = '/';
+    }
+
+    define('BASE_PATH', $basePath);
 }
 
 if (!defined('BASE_URL')) {
