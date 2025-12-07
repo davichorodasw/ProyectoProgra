@@ -339,64 +339,141 @@ include "../componentes/nav.php";
 </main>
 
 <script>
-    function actualizarEstado(pedidoId, nuevoEstado) {
-        console.log('Iniciando actualización de estado:', {
-            pedidoId,
-            nuevoEstado
-        });
+    (function() {
+        const container = document.createElement('div');
+        container.id = 'toast-container';
+        container.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10000;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    `;
+        document.body.appendChild(container);
 
-        if (!confirm('¿Cambiar estado del pedido #' + pedidoId.toString().padStart(6, '0') + ' a "' + nuevoEstado + '"?')) {
-            console.log('Usuario canceló la acción');
-            location.reload();
-            return;
-        }
+        window.showToast = function(message, type = 'info', duration = 3000) {
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            toast.style.cssText = `
+            background: ${type === 'success' ? '#4CAF50' : 
+                         type === 'error' ? '#f44336' : '#2196F3'};
+            color: white;
+            padding: 12px 20px;
+            border-radius: 4px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease;
+        `;
+
+            if (!document.querySelector('#toast-anim')) {
+                const style = document.createElement('style');
+                style.id = 'toast-anim';
+                style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+            `;
+                document.head.appendChild(style);
+            }
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, duration);
+        };
+    })();
+
+    window.showConfirm = function(message, title = 'Confirmar') {
+        return new Promise((resolve) => {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+        `;
+
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+        `;
+
+            modal.innerHTML = `
+            <h3 style="margin: 0 0 15px 0; color: #333;">${title}</h3>
+            <p style="margin: 0 0 25px 0; color: #555;">${message}</p>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button id="cancelBtn" style="padding: 10px 20px; background: #f0f0f0; border: none; border-radius: 4px; cursor: pointer;">
+                    Cancelar
+                </button>
+                <button id="confirmBtn" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                    Confirmar
+                </button>
+            </div>
+        `;
+
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+
+            document.getElementById('cancelBtn').onclick = () => {
+                document.body.removeChild(overlay);
+                resolve(false);
+            };
+
+            document.getElementById('confirmBtn').onclick = () => {
+                document.body.removeChild(overlay);
+                resolve(true);
+            };
+        });
+    };
+
+    async function actualizarEstado(pedidoId, nuevoEstado) {
+        const confirmed = await showConfirm(
+            `¿Cambiar estado del pedido <strong>#${pedidoId.toString().padStart(6, '0')}</strong> a <strong>"${nuevoEstado}"</strong>?`,
+            'Cambiar Estado'
+        );
+
+        if (!confirmed) return;
 
         const formData = new FormData();
         formData.append('pedido_id', pedidoId);
         formData.append('estado', nuevoEstado);
 
-        console.log('Enviando datos a:', '../php/actualizar_estado_pedido.php');
+        const select = document.querySelector(`select[data-pedido-id="${pedidoId}"]`);
+        select.disabled = true;
 
-        fetch('../php/actualizar_estado_pedido.php', {
+        try {
+            const response = await fetch('../php/actualizar_estado_pedido.php', {
                 method: 'POST',
                 body: formData
-            })
-            .then(response => {
-                console.log('Status:', response.status, 'OK:', response.ok);
-                return response.text().then(text => {
-                    console.log('Respuesta completa:', text);
-                    try {
-                        return JSON.parse(text);
-                    } catch (e) {
-                        console.error('Error parseando JSON:', e);
-                        console.error('Texto recibido:', text);
-                        throw new Error('Respuesta no es JSON válido: ' + text.substring(0, 200));
-                    }
-                });
-            })
-            .then(data => {
-                console.log('JSON parseado:', data);
-
-                if (data.success) {
-                    const select = document.querySelector(`select[data-pedido-id="${pedidoId}"]`);
-                    if (select) {
-                        select.classList.remove('status-pendiente', 'status-procesando', 'status-completado', 'status-cancelado');
-                        select.classList.add('status-' + nuevoEstado);
-                        select.value = nuevoEstado;
-                    }
-
-                    alert('✅ Estado actualizado correctamente');
-
-                } else {
-                    alert('❌ Error: ' + (data.message || 'Error desconocido'));
-                    setTimeout(() => location.reload(), 1000);
-                }
-            })
-            .catch(error => {
-                console.error('Error en fetch:', error);
-                alert('❌ Error: ' + error.message);
-                setTimeout(() => location.reload(), 1000);
             });
+
+            const data = await response.json();
+            select.disabled = false;
+
+            if (data.success) {
+                select.value = nuevoEstado;
+                select.className = 'status-select status-' + nuevoEstado;
+                showToast(`Estado actualizado a: ${nuevoEstado}`, 'success');
+            } else {
+                showToast(data.message, 'error');
+            }
+        } catch (error) {
+            select.disabled = false;
+            showToast('Error de conexión', 'error');
+        }
     }
 </script>
 
