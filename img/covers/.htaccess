@@ -1,0 +1,14 @@
+# Bloquear ejecución de scripts
+RemoveHandler .php .phtml .php3 .php4 .php5 .phps
+php_flag engine off
+
+# Bloquear acceso directo a archivos sensibles
+<Files ~ "\.(php|php3|php4|php5|phtml|phps)$">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Permitir solo imágenes
+<IfModule mod_headers.c>
+    Header set Content-Type "image/jpeg" "expr=%{REQUEST_FILENAME} =~ m#\.(jpe?g|png|webp|gif)$#i"
+</IfModule>
