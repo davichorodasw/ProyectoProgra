@@ -57,6 +57,12 @@
             <link rel="stylesheet" href="<?= $extraCss ?>">
         <?php endif; ?>
     <?php endif; ?>
+
+    <?php if (isset($additionalCSS) && is_array($additionalCSS)): ?>
+        <?php foreach ($additionalCSS as $css): ?>
+            <link rel="stylesheet" href="<?php echo asset($css); ?>">
+        <?php endforeach; ?>
+    <?php endif; ?>
 </head>
 
 <body>
@@ -68,3 +74,17 @@
             <h2>En físico, todo es mejor</h2>
         </div>
     </div>
+
+    <script src="<?php echo asset('js/notification.js'); ?>"></script>
+
+    <?php
+    if (isset($additionalJS) && is_array($additionalJS)) {
+        foreach ($additionalJS as $js) {
+            echo "<script src='" . asset($js) . "'></script>";
+        }
+    }
+    ?>
+
+</body>
+
+</html>

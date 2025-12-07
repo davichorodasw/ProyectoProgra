@@ -8,8 +8,8 @@ if (!isset($_SESSION['identity']) || $_SESSION['identity']->rol != 'admin') {
 
 $pageTitle = "Crear Producto - Ritmo Retro";
 $cssPath = "../css/styles.css";
-$additionalCSS = ["../css/notification.css"];
-$jsPath = "../js/notification.js";
+$additionalCSS = ["css/notification.css"];
+//$jsPath = "../js/notification.js";
 
 include "../componentes/header.php";
 include "../componentes/nav.php";
@@ -97,7 +97,14 @@ if (isset($_POST['guardar'])) {
             data-title="<?= htmlspecialchars($notificacion['title']) ?>"
             data-message="<?= htmlspecialchars($notificacion['message']) ?>"
             <?php if (isset($notificacion['redirect'])): ?> data-redirect="<?= htmlspecialchars($notificacion['redirect']) ?>" <?php endif; ?>
-            style="display: none;"></div>
+            style="display: none;">
+        </div>
+
+        <script>
+            if (typeof checkForPHPNotification === 'function') {
+                checkForPHPNotification();
+            }
+        </script>
     <?php endif; ?>
 
     <div class="page-header">
