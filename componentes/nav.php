@@ -1,43 +1,67 @@
 <?php
-// Evitar inclusión múltiple
 if (defined('NAV_INCLUIDO')) {
     return;
 }
 define('NAV_INCLUIDO', true);
 
-// Si no se cargó paths.php en header.php, cargarlo aquí
-if (!defined('BASE_PATH')) {
-    $pathsFiles = [
-        __DIR__ . '/../config/paths.php',
-        __DIR__ . '/../../config/paths.php'
-    ];
+// Iniciar sesión si no está iniciada
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-    foreach ($pathsFiles as $pathsFile) {
-        if (file_exists($pathsFile)) {
-            require_once $pathsFile;
-            break;
-        }
-    }
+// Incluir paths.php
+$pathsFiles = [
+    __DIR__ . '/../config/paths.php',
+    __DIR__ . '/../../config/paths.php',
+    __DIR__ . '/../../../config/paths.php'
+];
 
-    if (!defined('BASE_PATH')) {
-        define('BASE_PATH', '/php/Proyecto1puro/ProyectoProgra/');
-        function url($path = '')
-        {
-            return BASE_PATH . ltrim($path, '/');
-        }
-        function asset($path)
-        {
-            return BASE_PATH . ltrim($path, '/');
-        }
+$found = false;
+foreach ($pathsFiles as $pathsFile) {
+    if (file_exists($pathsFile)) {
+        require_once $pathsFile;
+        $found = true;
+        break;
     }
 }
 
-// Obtener información de sesión
+if (!$found) {
+    // Si no se encuentra paths.php, definir valores por defecto
+    define('BASE_PATH', '/php/Proyecto1puro/ProyectoProgra/');
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+    $host = $_SERVER['HTTP_HOST'];
+    define('BASE_URL', $protocol . $host . BASE_PATH);
+
+    function url($path = '')
+    {
+        return BASE_PATH . ltrim($path, '/');
+    }
+
+    function asset($path)
+    {
+        return BASE_URL . ltrim($path, '/');
+    }
+}
+
+// Asegurarse de que las funciones existen
+if (!function_exists('url')) {
+    function url($path = '')
+    {
+        return BASE_PATH . ltrim($path, '/');
+    }
+}
+
+if (!function_exists('asset')) {
+    function asset($path)
+    {
+        return BASE_URL . ltrim($path, '/');
+    }
+}
+
 $logged_in = isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true;
 $user_name = $logged_in ? ($_SESSION['user_name'] ?? 'Usuario') : '';
 $user_role = $logged_in && isset($_SESSION['user_role']) ? $_SESSION['user_role'] : 'user';
 
-// Calcular items en carrito
 $cart_count = 0;
 if (isset($_SESSION['carrito']) && is_array($_SESSION['carrito'])) {
     foreach ($_SESSION['carrito'] as $item) {
@@ -45,7 +69,6 @@ if (isset($_SESSION['carrito']) && is_array($_SESSION['carrito'])) {
     }
 }
 
-// Determinar página activa basada en script actual
 $current_script = $_SERVER['PHP_SELF'] ?? '';
 $active_page = '';
 
@@ -67,25 +90,21 @@ if (strpos($current_script, 'index.php') !== false) {
 ?>
 
 <nav class="main-nav">
-    <!-- Logo/Inicio -->
     <a href="<?php echo url('index.php'); ?>"
         class="nav-link <?php echo $active_page === 'inicio' ? 'active' : ''; ?>">
         Inicio
     </a>
 
-    <!-- CDs -->
     <a href="<?php echo url('views/cds.php'); ?>"
         class="nav-link <?php echo $active_page === 'cds' ? 'active' : ''; ?>">
         CDs
     </a>
 
-    <!-- Vinilos -->
     <a href="<?php echo url('views/vinilos.php'); ?>"
         class="nav-link <?php echo $active_page === 'vinilos' ? 'active' : ''; ?>">
         Vinilos
     </a>
 
-    <!-- Carrito (no para administradores) -->
     <?php if (!$logged_in || ($logged_in && $user_role !== 'admin')): ?>
         <a href="<?php echo url('views/carrito.php'); ?>"
             class="nav-link cart-link <?php echo $active_page === 'carrito' ? 'active' : ''; ?>">
@@ -96,15 +115,11 @@ if (strpos($current_script, 'index.php') !== false) {
         </a>
     <?php endif; ?>
 
-    <!-- Dropdown de usuario o login -->
     <?php if ($logged_in): ?>
         <div class="dropdown" id="userDropdownContainer">
             <button class="dropbtn" id="userDropdownBtn">
                 <span class="user-info">
                     <span class="user-name"><?php echo htmlspecialchars($user_name); ?></span>
-                    <?php if ($user_role === 'admin'): ?>
-                        <span class="admin-indicator" title="Administrador">👑</span>
-                    <?php endif; ?>
                     <span class="dropdown-arrow">▼</span>
                 </span>
             </button>
@@ -137,13 +152,19 @@ if (strpos($current_script, 'index.php') !== false) {
     <?php endif; ?>
 </nav>
 
-<!-- Cargar CSS y JS del dropdown SOLO UNA VEZ -->
-<?php if (!isset($dropdown_loaded)): ?>
-    <?php $dropdown_loaded = true; ?>
-    <link rel="stylesheet" href="<?php echo asset('css/dropdown.css'); ?>">
-    <script src="<?php echo asset('js/dropdown.js'); ?>" defer></script>
-    <script>
-        console.log('Nav loaded - Current page:', '<?php echo $active_page; ?>');
-        console.log('Base path:', '<?php echo BASE_PATH; ?>');
-    </script>
-<?php endif; ?>
+<script>
+    console.log('=== NAV DEBUG INFO ===');
+    console.log('Page: <?php echo $active_page; ?>');
+    console.log('Logged in: <?php echo $logged_in ? "true" : "false"; ?>');
+    console.log('User role: <?php echo $user_role; ?>');
+    console.log('BASE_URL: <?php echo BASE_URL; ?>');
+    console.log('Script path: <?php echo asset("js/dropdown.js"); ?>');
+    console.log('========================');
+</script>
+
+<link rel="stylesheet" href="<?php echo asset('css/dropdown.css'); ?>">
+<script src="<?php echo asset('js/dropdown.js'); ?>" defer></script>
+
+<script>
+    console.log('Dropdown resources loaded for page:', '<?php echo $active_page; ?>');
+</script>
