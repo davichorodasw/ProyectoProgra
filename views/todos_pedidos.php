@@ -340,9 +340,9 @@ include "../componentes/nav.php";
 
 <script>
     (function() {
-        const toastContainer = document.createElement('div');
-        toastContainer.id = 'toast-container';
-        toastContainer.style.cssText = `
+        const container = document.createElement('div');
+        container.id = 'toast-container';
+        container.style.cssText = `
         position: fixed;
         top: 20px;
         right: 20px;
@@ -350,142 +350,130 @@ include "../componentes/nav.php";
         display: flex;
         flex-direction: column;
         gap: 10px;
-        max-width: 400px;
     `;
-        document.body.appendChild(toastContainer);
+        document.body.appendChild(container);
 
         window.showToast = function(message, type = 'info', duration = 3000) {
             const toast = document.createElement('div');
-            toast.className = `toast toast-${type}`;
-
-            let icon = 'ℹ';
-            if (type === 'success') icon = '✓';
-            if (type === 'error') icon = '✗';
-            if (type === 'warning') icon = '⚠';
-
-            toast.innerHTML = `
-            <div class="toast-icon">${icon}</div>
-            <div class="toast-message">${message}</div>
-            <button class="toast-close" onclick="this.parentElement.remove()">×</button>
-        `;
-
+            toast.textContent = message;
             toast.style.cssText = `
             background: ${type === 'success' ? '#4CAF50' : 
-                         type === 'error' ? '#f44336' : 
-                         type === 'warning' ? '#ff9800' : '#2196F3'};
+                         type === 'error' ? '#f44336' : '#2196F3'};
             color: white;
-            padding: 12px 16px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            animation: toastSlideIn 0.3s ease;
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            font-size: 14px;
-            min-width: 300px;
-            max-width: 400px;
+            padding: 12px 20px;
+            border-radius: 4px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease;
         `;
 
-            const toastStyle = document.createElement('style');
-            if (!document.querySelector('#toast-styles')) {
-                toastStyle.id = 'toast-styles';
-                toastStyle.textContent = `
-                @keyframes toastSlideIn {
+            if (!document.querySelector('#toast-anim')) {
+                const style = document.createElement('style');
+                style.id = 'toast-anim';
+                style.textContent = `
+                @keyframes slideIn {
                     from { transform: translateX(100%); opacity: 0; }
                     to { transform: translateX(0); opacity: 1; }
                 }
-                @keyframes toastSlideOut {
-                    from { transform: translateX(0); opacity: 1; }
-                    to { transform: translateX(100%); opacity: 0; }
-                }
-                .toast-icon {
-                    font-size: 18px;
-                    font-weight: bold;
-                    flex-shrink: 0;
-                }
-                .toast-message {
-                    flex: 1;
-                    line-height: 1.4;
-                }
-                .toast-close {
-                    background: none;
-                    border: none;
-                    color: white;
-                    font-size: 20px;
-                    cursor: pointer;
-                    padding: 0;
-                    line-height: 1;
-                    flex-shrink: 0;
-                    opacity: 0.8;
-                }
-                .toast-close:hover {
-                    opacity: 1;
-                }
             `;
-                document.head.appendChild(toastStyle);
+                document.head.appendChild(style);
             }
 
-            toastContainer.appendChild(toast);
+            container.appendChild(toast);
 
             setTimeout(() => {
-                toast.style.animation = 'toastSlideOut 0.3s ease';
-                setTimeout(() => {
-                    if (toast.parentNode) toast.remove();
-                }, 300);
+                toast.remove();
             }, duration);
-        };
-
-        window.showSuccessToast = function(message, duration = 3000) {
-            showToast(message, 'success', duration);
-        };
-
-        window.showErrorToast = function(message, duration = 5000) {
-            showToast(message, 'error', duration);
         };
     })();
 
-    function actualizarEstado(pedidoId, nuevoEstado) {
-        if (!confirm('¿Cambiar estado del pedido #' + pedidoId.toString().padStart(6, '0') + ' a "' + nuevoEstado + '"?')) {
-            return;
-        }
+    window.showConfirm = function(message, title = 'Confirmar') {
+        return new Promise((resolve) => {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+        `;
+
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+        `;
+
+            modal.innerHTML = `
+            <h3 style="margin: 0 0 15px 0; color: #333;">${title}</h3>
+            <p style="margin: 0 0 25px 0; color: #555;">${message}</p>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button id="cancelBtn" style="padding: 10px 20px; background: #f0f0f0; border: none; border-radius: 4px; cursor: pointer;">
+                    Cancelar
+                </button>
+                <button id="confirmBtn" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                    Confirmar
+                </button>
+            </div>
+        `;
+
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+
+            document.getElementById('cancelBtn').onclick = () => {
+                document.body.removeChild(overlay);
+                resolve(false);
+            };
+
+            document.getElementById('confirmBtn').onclick = () => {
+                document.body.removeChild(overlay);
+                resolve(true);
+            };
+        });
+    };
+
+    async function actualizarEstado(pedidoId, nuevoEstado) {
+        const confirmed = await showConfirm(
+            `¿Cambiar estado del pedido <strong>#${pedidoId.toString().padStart(6, '0')}</strong> a <strong>"${nuevoEstado}"</strong>?`,
+            'Cambiar Estado'
+        );
+
+        if (!confirmed) return;
 
         const formData = new FormData();
         formData.append('pedido_id', pedidoId);
         formData.append('estado', nuevoEstado);
 
         const select = document.querySelector(`select[data-pedido-id="${pedidoId}"]`);
-        const originalState = select.value;
         select.disabled = true;
-        select.style.opacity = '0.7';
 
-        fetch('../php/actualizar_estado_pedido.php', {
+        try {
+            const response = await fetch('../php/actualizar_estado_pedido.php', {
                 method: 'POST',
                 body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                select.disabled = false;
-                select.style.opacity = '1';
-
-                if (data.success) {
-                    select.classList.remove('status-pendiente', 'status-procesando', 'status-completado', 'status-cancelado');
-                    select.classList.add('status-' + nuevoEstado);
-                    select.value = nuevoEstado;
-
-                    showSuccessToast(`Pedido #${pedidoId.toString().padStart(6, '0')} actualizado a: ${nuevoEstado}`);
-                } else {
-                    select.value = originalState;
-                    showErrorToast(data.message || 'Error al actualizar estado');
-                }
-            })
-            .catch(error => {
-                select.disabled = false;
-                select.style.opacity = '1';
-                select.value = originalState;
-                showErrorToast('Error de conexión. Intenta nuevamente.');
-                console.error('Error:', error);
             });
+
+            const data = await response.json();
+            select.disabled = false;
+
+            if (data.success) {
+                select.value = nuevoEstado;
+                select.className = 'status-select status-' + nuevoEstado;
+                showToast(`Estado actualizado a: ${nuevoEstado}`, 'success');
+            } else {
+                showToast(data.message, 'error');
+            }
+        } catch (error) {
+            select.disabled = false;
+            showToast('Error de conexión', 'error');
+        }
     }
 </script>
 
