@@ -21,46 +21,44 @@
     <?php endif; ?>
 
     <form method="POST" action="<?php echo isset($formAction)
-        ? $formAction
-        : "../php/conexion.php"; ?>">
+                                    ? $formAction
+                                    : "../php/conexion.php"; ?>">
         <!-- Email -->
         <div class="form-group">
             <label for="email">Correo Electrónico</label>
-            <input 
-                id="email" 
-                type="email" 
-                name="email" 
+            <input
+                id="email"
+                type="email"
+                name="email"
                 value="<?php echo isset($oldEmail)
-                    ? htmlspecialchars($oldEmail)
-                    : ""; ?>" 
-                required 
+                            ? htmlspecialchars($oldEmail)
+                            : ""; ?>"
+                required
                 autofocus
-                placeholder="tu@email.com"
-            >
+                placeholder="tu@email.com">
         </div>
 
         <!-- Contraseña -->
         <div class="form-group">
             <label for="password">Contraseña</label>
-            <input 
-                id="password" 
-                type="password" 
-                name="password" 
+            <input
+                id="password"
+                type="password"
+                name="password"
                 required
-                placeholder="Tu contraseña"
-            >
+                placeholder="Tu contraseña">
         </div>
 
         <!-- Recordarme y Olvidé mi contraseña -->
         <div class="auth-options">
-            <label for="remember_me">
+            <!-- <label for="remember_me">
                 <input id="remember_me" type="checkbox" name="remember">
                 <span>Recordarme</span>
-            </label>
+            </label> -->
 
             <a class="auth-link" href="<?php echo isset($forgotPasswordLink)
-                ? $forgotPasswordLink
-                : "#olvidado"; ?>">
+                                            ? $forgotPasswordLink
+                                            : "#olvidado"; ?>">
                 ¿Olvidaste tu contraseña?
             </a>
         </div>
@@ -72,8 +70,8 @@
 
         <div class="auth-footer-link">
             <a href="<?php echo isset($registerLink)
-                ? $registerLink
-                : "#registro"; ?>" class="auth-link">
+                            ? $registerLink
+                            : "#registro"; ?>" class="auth-link">
                 ¿No tienes cuenta? Regístrate
             </a>
         </div>

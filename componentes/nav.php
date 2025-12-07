@@ -149,16 +149,6 @@ if (strpos($current_script, 'index.php') !== false) {
     <?php endif; ?>
 </nav>
 
-<script>
-    console.log('=== NAV DEBUG INFO ===');
-    console.log('Page: <?php echo $active_page; ?>');
-    console.log('Logged in: <?php echo $logged_in ? "true" : "false"; ?>');
-    console.log('User role: <?php echo $user_role; ?>');
-    console.log('BASE_URL: <?php echo BASE_URL; ?>');
-    console.log('Script path: <?php echo asset("js/dropdown.js"); ?>');
-    console.log('========================');
-</script>
-
 <link rel="stylesheet" href="<?php echo asset('css/dropdown.css'); ?>">
 <script src="<?php echo asset('js/dropdown.js'); ?>" defer></script>
 

@@ -28,7 +28,6 @@ $page = max(1, intval($_GET['page'] ?? 1));
 $limit = 25;
 $offset = ($page - 1) * $limit;
 
-// Construir consulta base
 $query = "SELECT p.*, u.nombre as cliente_nombre, u.email as cliente_email, 
                  (SELECT COUNT(*) FROM detalles_pedido dp WHERE dp.pedido_id = p.id) as total_productos,
                  (SELECT SUM(dp.cantidad) FROM detalles_pedido dp WHERE dp.pedido_id = p.id) as total_items
@@ -41,7 +40,6 @@ $count_query = "SELECT COUNT(*) as total
                 JOIN usuarios u ON p.usuario_id = u.id 
                 WHERE 1=1";
 
-// Aplicar filtros
 $params = [];
 $types = "";
 
@@ -93,12 +91,10 @@ if ($filter === 'recent') {
     $count_query .= " AND p.total >= 100";
 }
 
-// Ordenar y limitar
 $query .= " ORDER BY p.fecha_pedido DESC LIMIT ? OFFSET ?";
 $count_params = $params;
 $count_types = $types;
 
-// Contar total de registros
 $stmt_count = mysqli_prepare($conn, $count_query);
 if (!empty($count_params)) {
     mysqli_stmt_bind_param($stmt_count, $count_types, ...$count_params);
@@ -109,7 +105,6 @@ $total_rows = mysqli_fetch_assoc($result_count)['total'];
 $total_pages = ceil($total_rows / $limit);
 mysqli_stmt_close($stmt_count);
 
-// Obtener pedidos
 $params[] = $limit;
 $params[] = $offset;
 $types .= "ii";
@@ -122,7 +117,6 @@ mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 $pedidos = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-// Estadísticas
 $stats_query = "SELECT 
     COUNT(*) as total_pedidos,
     SUM(CASE WHEN estado = 'completado' THEN 1 ELSE 0 END) as completados,
@@ -133,7 +127,6 @@ $stats_query = "SELECT
     FROM pedidos";
 
 if (!empty($params)) {
-    // Remover los parámetros de limit y offset para las estadísticas
     $stats_params = array_slice($params, 0, -2);
     $stats_types = substr($types, 0, -2);
 
@@ -171,7 +164,6 @@ include "../componentes/nav.php";
         <?php include "admin_sidebar.php"; ?>
 
         <div class="admin-content">
-            <!-- Estadísticas rápidas -->
             <div class="stats-cards">
                 <div class="stat-card-mini">
                     <span class="stat-icon-mini">📊</span>
@@ -240,7 +232,6 @@ include "../componentes/nav.php";
                 </a>
             </div>
 
-            <!-- Tabla de pedidos -->
             <div class="table-container">
                 <table class="pedidos-table">
                     <thead>
@@ -319,7 +310,6 @@ include "../componentes/nav.php";
                 </table>
             </div>
 
-            <!-- Paginación -->
             <?php if ($total_pages > 1): ?>
                 <div class="pagination">
                     <?php if ($page > 1): ?>
@@ -350,38 +340,63 @@ include "../componentes/nav.php";
 
 <script>
     function actualizarEstado(pedidoId, nuevoEstado) {
-        if (confirm('¿Cambiar estado del pedido #' + pedidoId.toString().padStart(6, '0') + ' a ' + nuevoEstado + '?')) {
-            fetch('../php/actualizar_estado_pedido.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'pedido_id=' + pedidoId + '&estado=' + nuevoEstado
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Actualizar clase del select
-                        const select = document.querySelector(`select[data-pedido-id="${pedidoId}"]`);
-                        select.className = 'status-select status-' + nuevoEstado;
+        console.log('Iniciando actualización de estado:', {
+            pedidoId,
+            nuevoEstado
+        });
 
-                        // Mostrar notificación
-                        alert('Estado actualizado correctamente');
-                    } else {
-                        alert('Error: ' + data.message);
-                        // Revertir al estado anterior
-                        location.reload();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al actualizar el estado');
-                    location.reload();
-                });
-        } else {
-            // Revertir al estado anterior
+        if (!confirm('¿Cambiar estado del pedido #' + pedidoId.toString().padStart(6, '0') + ' a "' + nuevoEstado + '"?')) {
+            console.log('Usuario canceló la acción');
             location.reload();
+            return;
         }
+
+        const formData = new FormData();
+        formData.append('pedido_id', pedidoId);
+        formData.append('estado', nuevoEstado);
+
+        console.log('Enviando datos a:', '../php/actualizar_estado_pedido.php');
+
+        fetch('../php/actualizar_estado_pedido.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                console.log('Status:', response.status, 'OK:', response.ok);
+                return response.text().then(text => {
+                    console.log('Respuesta completa:', text);
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        console.error('Error parseando JSON:', e);
+                        console.error('Texto recibido:', text);
+                        throw new Error('Respuesta no es JSON válido: ' + text.substring(0, 200));
+                    }
+                });
+            })
+            .then(data => {
+                console.log('JSON parseado:', data);
+
+                if (data.success) {
+                    const select = document.querySelector(`select[data-pedido-id="${pedidoId}"]`);
+                    if (select) {
+                        select.classList.remove('status-pendiente', 'status-procesando', 'status-completado', 'status-cancelado');
+                        select.classList.add('status-' + nuevoEstado);
+                        select.value = nuevoEstado;
+                    }
+
+                    alert('✅ Estado actualizado correctamente');
+
+                } else {
+                    alert('❌ Error: ' + (data.message || 'Error desconocido'));
+                    setTimeout(() => location.reload(), 1000);
+                }
+            })
+            .catch(error => {
+                console.error('Error en fetch:', error);
+                alert('❌ Error: ' + error.message);
+                setTimeout(() => location.reload(), 1000);
+            });
     }
 </script>
 
