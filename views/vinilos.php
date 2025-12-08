@@ -51,7 +51,7 @@ $basePath = "../";
                 <?php endif; ?>
 
                 <?php
-                $currentPageType = ($currentPage === "cds") ? 'cd' : 'vinilo';
+                $currentPageType = 'vinilo';
                 ?>
 
                 <div class="filter-group">
@@ -59,9 +59,7 @@ $basePath = "../";
                     <select name="genero" id="genero">
                         <option value="">Todos los géneros</option>
                         <?php
-                        $generos = ($currentPageType === 'cd') ?
-                            ['rock', 'pop', 'jazz', 'clasica', 'electronica'] :
-                            ['rock', 'jazz', 'blues', 'soul', 'funk', 'clasica'];
+                        $generos = ['rock', 'pop', 'jazz', 'clasica', 'electronica', 'blues', 'soul', 'funk'];
                         foreach ($generos as $g) {
                             $selected = (isset($_GET['genero']) && $_GET['genero'] === $g) ? 'selected' : '';
                             echo "<option value='$g' $selected>" . ucfirst($g) . "</option>";
@@ -95,7 +93,7 @@ $basePath = "../";
                     <button type="submit" style="background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">
                         Aplicar Filtros
                     </button>
-                    <a href="<?= $currentPage === 'cds' ? 'cds.php' : 'vinilos.php' ?>" style="margin-left: 10px; color: #e74c3c; text-decoration: underline;">Limpiar</a>
+                    <a href="vinilos.php" style="margin-left: 10px; color: #e74c3c; text-decoration: underline;">Limpiar</a>
                 </div>
             </div>
         </form>
@@ -108,26 +106,19 @@ $basePath = "../";
             $db = new mysqli('localhost', 'root', '', 'ritmoretro');
             $db->set_charset("utf8");
 
-            // Determinar si estamos en CDs o Vinilos
-            $currentPageType = ($currentPage === "cds") ? 'cd' : 'vinilo';
-
-            // Consulta base
-            $sql = "SELECT * FROM productos WHERE tipo = '$currentPageType'";
+            $sql = "SELECT * FROM productos WHERE tipo = 'vinilo'";
             $conditions = [];
 
-            // 1. Búsqueda por título o artista
             if (!empty($_GET['q'])) {
                 $q = $db->real_escape_string($_GET['q']);
                 $conditions[] = "(titulo LIKE '%$q%' OR artista LIKE '%$q%')";
             }
 
-            // 2. Filtro por género (busca coincidencias en título, artista o descripción)
             if (!empty($_GET['genero'])) {
                 $genero = $db->real_escape_string($_GET['genero']);
-                $conditions[] = "(titulo LIKE '%$genero%' OR artista LIKE '%$genero%' OR descripcion LIKE '%$genero%')";
+                $conditions[] = "genero = '$genero'";
             }
 
-            // 3. Filtro por rango de precio
             if (!empty($_GET['precio'])) {
                 switch ($_GET['precio']) {
                     case '0-15':
@@ -145,13 +136,11 @@ $basePath = "../";
                 }
             }
 
-            // Unir condiciones
             if (!empty($conditions)) {
                 $sql .= " AND " . implode(" AND ", $conditions);
             }
 
-            // 4. Ordenación
-            $orden = "id DESC"; // por defecto: más recientes
+            $orden = "id DESC";
             if (isset($_GET['orden'])) {
                 switch ($_GET['orden']) {
                     case 'precio_asc':
@@ -175,12 +164,9 @@ $basePath = "../";
 
             <?php if ($productos && $productos->num_rows > 0): ?>
                 <?php while ($prod = $productos->fetch_object()): ?>
-                    <div class="product-card <?= $currentPageType === 'cd' ? 'cd-card' : 'vinyl-card' ?>">
-                        <div class="product-image <?= $currentPageType === 'cd' ? 'cd-image' : 'vinyl-image' ?>">
-                            <span class="<?= $currentPageType === 'cd' ? 'cd-label' : 'vinyl-label' ?>">
-                                <?= $currentPageType === 'cd' ? 'CD' : 'Vinilo' ?>
-                            </span>
-
+                    <div class="product-card vinyl-card">
+                        <div class="product-image vinyl-image">
+                            <span class="vinyl-label">Vinilo</span>
                             <?php
                             $img = (!empty($prod->imagen) && $prod->imagen !== 'default.png') ? $prod->imagen : 'default.png';
                             ?>
@@ -192,8 +178,9 @@ $basePath = "../";
                         <div class="product-info">
                             <h3><?= htmlspecialchars($prod->titulo) ?></h3>
                             <p class="artist"><?= htmlspecialchars($prod->artista) ?></p>
+                            <p class="genre"><?= ucfirst(htmlspecialchars($prod->genero)) ?></p>
 
-                            <p class="genre" style="font-size: 0.9em; color: #666;">
+                            <p style="font-size: 0.9em; color: #666;">
                                 <?= htmlspecialchars(substr($prod->descripcion, 0, 60)) ?>...
                             </p>
 
@@ -225,7 +212,7 @@ $basePath = "../";
             <?php else: ?>
                 <p style="text-align:center; grid-column: 1 / -1; font-size:1.2em; color:#666;">
                     No se encontraron resultados para tu búsqueda.
-                    <br><a href="<?= $currentPage === 'cds' ? 'cds.php' : 'vinilos.php' ?>" style="color:#e74c3c;">Ver todos</a>
+                    <br><a href="vinilos.php" style="color:#e74c3c;">Ver todos</a>
                 </p>
             <?php endif; ?>
 

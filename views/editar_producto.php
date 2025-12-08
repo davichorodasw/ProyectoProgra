@@ -9,7 +9,6 @@ if (!isset($_SESSION['identity']) || $_SESSION['identity']->rol != 'admin') {
 $pageTitle = "Editar Producto - Ritmo Retro";
 $cssPath = "../css/styles.css";
 $additionalCSS = ["css/notification.css"];
-//$jsPath = "../js/notification.js";
 
 include "../componentes/header.php";
 include "../componentes/nav.php";
@@ -31,10 +30,11 @@ if (isset($_POST['actualizar'])) {
     $titulo      = $db->real_escape_string($_POST['titulo']);
     $artista     = $db->real_escape_string($_POST['artista']);
     $tipo        = $db->real_escape_string($_POST['tipo']);
+    $genero      = $db->real_escape_string($_POST['genero']);
     $precio      = floatval($_POST['precio']);
     $stock       = intval($_POST['stock']);
     $descripcion = $db->real_escape_string($_POST['descripcion']);
-    $imagen_nueva = $prod->imagen; // mantener actual por defecto
+    $imagen_nueva = $prod->imagen;
 
     if (!empty($_FILES['imagen']['name']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
         $file = $_FILES['imagen'];
@@ -54,7 +54,6 @@ if (isset($_POST['actualizar'])) {
             $destination = $uploadDir . $filename;
 
             if (move_uploaded_file($file['tmp_name'], $destination)) {
-                // Borrar imagen anterior si existe y no es default
                 if ($prod->imagen !== 'default.png') {
                     $oldFile = $uploadDir . $prod->imagen;
                     if (file_exists($oldFile)) unlink($oldFile);
@@ -67,7 +66,8 @@ if (isset($_POST['actualizar'])) {
     $update = "UPDATE productos SET 
                titulo = '$titulo', 
                artista = '$artista', 
-               tipo = '$tipo', 
+               tipo = '$tipo',
+               genero = '$genero', 
                precio = $precio, 
                stock = $stock, 
                descripcion = '$descripcion',
@@ -86,7 +86,7 @@ if (isset($_POST['actualizar'])) {
         $notificacion = [
             'type' => 'error',
             'title' => 'Error',
-            'message' => 'No se pudo actualizar.'
+            'message' => 'No se pudo actualizar. ' . $db->error
         ];
     }
 }
@@ -123,6 +123,21 @@ if (isset($_POST['actualizar'])) {
             <div class="form-group">
                 <label>Artista:</label>
                 <input type="text" name="artista" value="<?= htmlspecialchars($prod->artista) ?>" required style="width: 100%; padding: 8px;">
+            </div>
+
+            <div class="form-group">
+                <label>Género:</label>
+                <select name="genero" required style="width: 100%; padding: 8px;">
+                    <option value="">Selecciona un género</option>
+                    <option value="rock" <?= $prod->genero == 'rock' ? 'selected' : '' ?>>Rock</option>
+                    <option value="pop" <?= $prod->genero == 'pop' ? 'selected' : '' ?>>Pop</option>
+                    <option value="jazz" <?= $prod->genero == 'jazz' ? 'selected' : '' ?>>Jazz</option>
+                    <option value="clasica" <?= $prod->genero == 'clasica' ? 'selected' : '' ?>>Clásica</option>
+                    <option value="electronica" <?= $prod->genero == 'electronica' ? 'selected' : '' ?>>Electrónica</option>
+                    <option value="blues" <?= $prod->genero == 'blues' ? 'selected' : '' ?>>Blues</option>
+                    <option value="soul" <?= $prod->genero == 'soul' ? 'selected' : '' ?>>Soul</option>
+                    <option value="funk" <?= $prod->genero == 'funk' ? 'selected' : '' ?>>Funk</option>
+                </select>
             </div>
 
             <div class="form-group">
