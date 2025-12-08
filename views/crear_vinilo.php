@@ -9,13 +9,11 @@ if (!isset($_SESSION['identity']) || $_SESSION['identity']->rol != 'admin') {
 $pageTitle = "Crear Producto - Ritmo Retro";
 $cssPath = "../css/styles.css";
 $additionalCSS = ["css/notification.css"];
-//$jsPath = "../js/notification.js";
 
 include "../componentes/header.php";
 include "../componentes/nav.php";
 
 $exito = false;
-$redireccion = "";
 $notificacion = null;
 
 if (isset($_POST['guardar'])) {
@@ -26,10 +24,11 @@ if (isset($_POST['guardar'])) {
     $titulo      = $db->real_escape_string($_POST['titulo']);
     $artista     = $db->real_escape_string($_POST['artista']);
     $tipo        = 'vinilo';
+    $genero      = $db->real_escape_string($_POST['genero']);
     $precio      = floatval($_POST['precio']);
     $stock       = intval($_POST['stock']);
     $descripcion = $db->real_escape_string($_POST['descripcion']);
-    $imagen = 'default.png';
+    $imagen      = 'default.png';
 
     if (!empty($_FILES['imagen']['name']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
         $file = $_FILES['imagen'];
@@ -64,22 +63,22 @@ if (isset($_POST['guardar'])) {
         }
     }
 
-    $sql = "INSERT INTO productos (tipo, titulo, artista, precio, imagen, descripcion, stock) 
-            VALUES ('$tipo', '$titulo', '$artista', $precio, '$imagen', '$descripcion', $stock)";
+    $sql = "INSERT INTO productos (tipo, titulo, artista, genero, precio, imagen, descripcion, stock) 
+            VALUES ('$tipo', '$titulo', '$artista', '$genero', $precio, '$imagen', '$descripcion', $stock)";
 
     if ($db->query($sql)) {
         $exito = true;
         $notificacion = [
             'type' => 'success',
-            'title' => '¡Producto creado con éxito!',
+            'title' => '¡Vinilo creado con éxito!',
             'message' => 'Redirigiendo a Vinilos...',
             'redirect' => 'vinilos.php'
         ];
     } else {
         $notificacion = [
             'type' => 'error',
-            'title' => 'Error al guardar',
-            'message' => 'No se pudo crear el producto.'
+            'title' => 'Error',
+            'message' => 'No se pudo crear el Vinilo. ' . $db->error
         ];
     }
     $db->close();
@@ -120,6 +119,21 @@ if (isset($_POST['guardar'])) {
                 <label for="artista"><strong>Artista / Banda:</strong></label>
                 <input type="text" name="artista" required style="width: 100%; padding: 8px;"
                     value="<?= isset($_POST['artista']) && !$exito ? htmlspecialchars($_POST['artista']) : '' ?>">
+            </div>
+
+            <div class="form-group">
+                <label for="genero"><strong>Género:</strong></label>
+                <select name="genero" required style="width: 100%; padding: 8px;">
+                    <option value="">Selecciona un género</option>
+                    <option value="rock" <?= isset($_POST['genero']) && $_POST['genero'] == 'rock' ? 'selected' : '' ?>>Rock</option>
+                    <option value="pop" <?= isset($_POST['genero']) && $_POST['genero'] == 'pop' ? 'selected' : '' ?>>Pop</option>
+                    <option value="jazz" <?= isset($_POST['genero']) && $_POST['genero'] == 'jazz' ? 'selected' : '' ?>>Jazz</option>
+                    <option value="clasica" <?= isset($_POST['genero']) && $_POST['genero'] == 'clasica' ? 'selected' : '' ?>>Clásica</option>
+                    <option value="electronica" <?= isset($_POST['genero']) && $_POST['genero'] == 'electronica' ? 'selected' : '' ?>>Electrónica</option>
+                    <option value="blues" <?= isset($_POST['genero']) && $_POST['genero'] == 'blues' ? 'selected' : '' ?>>Blues</option>
+                    <option value="soul" <?= isset($_POST['genero']) && $_POST['genero'] == 'soul' ? 'selected' : '' ?>>Soul</option>
+                    <option value="funk" <?= isset($_POST['genero']) && $_POST['genero'] == 'funk' ? 'selected' : '' ?>>Funk</option>
+                </select>
             </div>
 
             <div style="display: flex; gap: 20px;">
