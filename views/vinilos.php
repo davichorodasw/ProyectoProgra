@@ -27,52 +27,78 @@ $basePath = "../";
 
     <?php $searchPlaceholder = "Buscar vinilos por título, artista o género..."; ?>
 
+    <div class="search-bar-container" style="max-width: 800px; margin: 30px auto; text-align: center;">
+        <form method="GET" action="" style="display: inline-block; width: 100%;">
+            <div style="position: relative; max-width: 600px; margin: 0 auto;">
+                <input type="text"
+                    name="q"
+                    placeholder="<?= $searchPlaceholder ?>"
+                    value="<?= isset($_GET['q']) ? htmlspecialchars($_GET['q']) : '' ?>"
+                    style="width: 100%; padding: 14px 50px 14px 20px; font-size: 1.1em; border: 2px solid #ddd; border-radius: 50px; outline: none;">
+                <button type="submit" style="position: absolute; right: 8px; top: 6px; background: #e74c3c; color: white; border: none; padding: 10px 16px; border-radius: 50px; cursor: pointer;">
+                    Buscar
+                </button>
+            </div>
+        </form>
+    </div>
+
     <section class="filters-section">
-        <div class="filters">
-            <div class="filter-group">
-                <label for="genre">Género:</label>
-                <select id="genre">
-                    <option value="">Todos los géneros</option>
-                    <option value="rock">Rock</option>
-                    <option value="jazz">Jazz</option>
-                    <option value="blues">Blues</option>
-                    <option value="soul">Soul</option>
-                    <option value="funk">Funk</option>
-                    <option value="clasica">Clásica</option>
-                </select>
+        <form method="GET" action="" class="filters-form">
+            <div class="filters">
+
+                <?php if (isset($_GET['q'])): ?>
+                    <input type="hidden" name="q" value="<?= htmlspecialchars($_GET['q']) ?>">
+                <?php endif; ?>
+
+                <?php
+                $currentPageType = ($currentPage === "cds") ? 'cd' : 'vinilo';
+                ?>
+
+                <div class="filter-group">
+                    <label for="genero">Género:</label>
+                    <select name="genero" id="genero">
+                        <option value="">Todos los géneros</option>
+                        <?php
+                        $generos = ($currentPageType === 'cd') ?
+                            ['rock', 'pop', 'jazz', 'clasica', 'electronica'] :
+                            ['rock', 'jazz', 'blues', 'soul', 'funk', 'clasica'];
+                        foreach ($generos as $g) {
+                            $selected = (isset($_GET['genero']) && $_GET['genero'] === $g) ? 'selected' : '';
+                            echo "<option value='$g' $selected>" . ucfirst($g) . "</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="precio">Precio:</label>
+                    <select name="precio" id="precio">
+                        <option value="">Todos los precios</option>
+                        <option value="0-15" <?= (isset($_GET['precio']) && $_GET['precio'] === '0-15') ? 'selected' : '' ?>>Hasta $15</option>
+                        <option value="15-25" <?= (isset($_GET['precio']) && $_GET['precio'] === '15-25') ? 'selected' : '' ?>>$15 - $25</option>
+                        <option value="25-40" <?= (isset($_GET['precio']) && $_GET['precio'] === '25-40') ? 'selected' : '' ?>>$25 - $40</option>
+                        <option value="40+" <?= (isset($_GET['precio']) && $_GET['precio'] === '40+') ? 'selected' : '' ?>>Más de $40</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="orden">Ordenar por:</label>
+                    <select name="orden" id="orden">
+                        <option value="reciente" <?= (!isset($_GET['orden']) || $_GET['orden'] === 'reciente') ? 'selected' : '' ?>>Más recientes</option>
+                        <option value="precio_asc" <?= (isset($_GET['orden']) && $_GET['orden'] === 'precio_asc') ? 'selected' : '' ?>>Precio: menor a mayor</option>
+                        <option value="precio_desc" <?= (isset($_GET['orden']) && $_GET['orden'] === 'precio_desc') ? 'selected' : '' ?>>Precio: mayor a menor</option>
+                        <option value="titulo" <?= (isset($_GET['orden']) && $_GET['orden'] === 'titulo') ? 'selected' : '' ?>>Título A-Z</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <button type="submit" style="background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                        Aplicar Filtros
+                    </button>
+                    <a href="<?= $currentPage === 'cds' ? 'cds.php' : 'vinilos.php' ?>" style="margin-left: 10px; color: #e74c3c; text-decoration: underline;">Limpiar</a>
+                </div>
             </div>
-            <div class="filter-group">
-                <label for="condition">Estado:</label>
-                <select id="condition">
-                    <option value="">Todos los estados</option>
-                    <option value="nuevo">Nuevo</option>
-                    <option value="like-new">Como nuevo</option>
-                    <option value="muy-bueno">Muy bueno</option>
-                    <option value="bueno">Bueno</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="edition">Edición:</label>
-                <select id="edition">
-                    <option value="">Todas las ediciones</option>
-                    <option value="original">Original</option>
-                    <option value="reedicion">Reedición</option>
-                    <option value="limitada">Edición Limitada</option>
-                    <option value="numerada">Numerada</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="sort">Ordenar por:</label>
-                <select id="sort">
-                    <option value="popular">Más populares</option>
-                    <option value="newest">Más recientes</option>
-                    <option value="year-old">Año: más antiguos</option>
-                    <option value="year-new">Año: más nuevos</option>
-                    <option value="price-low">Precio: menor a mayor</option>
-                    <option value="price-high">Precio: mayor a menor</option>
-                </select>
-            </div>
-        </div>
+        </form>
     </section>
 
     <section class="products-section">
@@ -82,27 +108,93 @@ $basePath = "../";
             $db = new mysqli('localhost', 'root', '', 'ritmoretro');
             $db->set_charset("utf8");
 
-            // CAMBIO AQUÍ: Filtramos por 'vinilo'
-            $sql = "SELECT * FROM productos WHERE tipo = 'vinilo' ORDER BY id DESC";
+            // Determinar si estamos en CDs o Vinilos
+            $currentPageType = ($currentPage === "cds") ? 'cd' : 'vinilo';
+
+            // Consulta base
+            $sql = "SELECT * FROM productos WHERE tipo = '$currentPageType'";
+            $conditions = [];
+
+            // 1. Búsqueda por título o artista
+            if (!empty($_GET['q'])) {
+                $q = $db->real_escape_string($_GET['q']);
+                $conditions[] = "(titulo LIKE '%$q%' OR artista LIKE '%$q%')";
+            }
+
+            // 2. Filtro por género (busca coincidencias en título, artista o descripción)
+            if (!empty($_GET['genero'])) {
+                $genero = $db->real_escape_string($_GET['genero']);
+                $conditions[] = "(titulo LIKE '%$genero%' OR artista LIKE '%$genero%' OR descripcion LIKE '%$genero%')";
+            }
+
+            // 3. Filtro por rango de precio
+            if (!empty($_GET['precio'])) {
+                switch ($_GET['precio']) {
+                    case '0-15':
+                        $conditions[] = "precio <= 15";
+                        break;
+                    case '15-25':
+                        $conditions[] = "precio BETWEEN 15 AND 25";
+                        break;
+                    case '25-40':
+                        $conditions[] = "precio BETWEEN 25 AND 40";
+                        break;
+                    case '40+':
+                        $conditions[] = "precio > 40";
+                        break;
+                }
+            }
+
+            // Unir condiciones
+            if (!empty($conditions)) {
+                $sql .= " AND " . implode(" AND ", $conditions);
+            }
+
+            // 4. Ordenación
+            $orden = "id DESC"; // por defecto: más recientes
+            if (isset($_GET['orden'])) {
+                switch ($_GET['orden']) {
+                    case 'precio_asc':
+                        $orden = "precio ASC";
+                        break;
+                    case 'precio_desc':
+                        $orden = "precio DESC";
+                        break;
+                    case 'titulo':
+                        $orden = "titulo ASC";
+                        break;
+                    case 'reciente':
+                        $orden = "id DESC";
+                        break;
+                }
+            }
+            $sql .= " ORDER BY $orden";
+
             $productos = $db->query($sql);
-
-            if ($productos && $productos->num_rows > 0):
-                while ($prod = $productos->fetch_object()):
             ?>
-                    <div class="product-card vinyl-card">
-                        <div class="product-image vinyl-image">
-                            <span class="vinyl-label">Vinilo</span>
 
-                            <?php $img = $prod->imagen != null ? $prod->imagen : 'default.png'; ?>
-                            <img src="../img/covers/<?= $img ?>" alt="<?= $prod->titulo ?>" style="width:100%; height:100%; object-fit:cover;">
+            <?php if ($productos && $productos->num_rows > 0): ?>
+                <?php while ($prod = $productos->fetch_object()): ?>
+                    <div class="product-card <?= $currentPageType === 'cd' ? 'cd-card' : 'vinyl-card' ?>">
+                        <div class="product-image <?= $currentPageType === 'cd' ? 'cd-image' : 'vinyl-image' ?>">
+                            <span class="<?= $currentPageType === 'cd' ? 'cd-label' : 'vinyl-label' ?>">
+                                <?= $currentPageType === 'cd' ? 'CD' : 'Vinilo' ?>
+                            </span>
+
+                            <?php
+                            $img = (!empty($prod->imagen) && $prod->imagen !== 'default.png') ? $prod->imagen : 'default.png';
+                            ?>
+                            <img src="../img/covers/<?= htmlspecialchars($img) ?>"
+                                alt="<?= htmlspecialchars($prod->titulo) ?>"
+                                style="width:100%; height:100%; object-fit:cover;">
                         </div>
 
                         <div class="product-info">
-                            <h3><?= $prod->titulo ?></h3>
-                            <p class="artist"><?= $prod->artista ?></p>
+                            <h3><?= htmlspecialchars($prod->titulo) ?></h3>
+                            <p class="artist"><?= htmlspecialchars($prod->artista) ?></p>
 
                             <p class="genre" style="font-size: 0.9em; color: #666;">
-                                <?= substr($prod->descripcion, 0, 30) ?>...
+                                <?= htmlspecialchars(substr($prod->descripcion, 0, 60)) ?>...
                             </p>
 
                             <div class="price-section">
@@ -116,34 +208,29 @@ $basePath = "../";
 
                             <?php if (isset($_SESSION['identity']) && $_SESSION['identity']->rol == 'admin'): ?>
                                 <div class="admin-actions" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; display:flex; gap:5px; justify-content:center;">
-
                                     <a href="editar_producto.php?id=<?= $prod->id ?>"
                                         style="background-color: #f39c12; color: white; padding: 5px 15px; font-size: 0.8rem; text-decoration: none; border-radius: 3px; font-weight:bold;">
                                         Editar
                                     </a>
-
                                     <a href="borrar_producto.php?id=<?= $prod->id ?>"
                                         onclick="return confirm('¿Estás seguro de eliminar este álbum?');"
                                         style="background-color: #c0392b; color: white; padding: 5px 15px; font-size: 0.8rem; text-decoration: none; border-radius: 3px; font-weight:bold;">
                                         Eliminar
                                     </a>
-
                                 </div>
                             <?php endif; ?>
                         </div>
                     </div>
-
-                <?php
-                endwhile;
-            else:
-                ?>
-                <p>No hay Vinilos disponibles en este momento.</p>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <p style="text-align:center; grid-column: 1 / -1; font-size:1.2em; color:#666;">
+                    No se encontraron resultados para tu búsqueda.
+                    <br><a href="<?= $currentPage === 'cds' ? 'cds.php' : 'vinilos.php' ?>" style="color:#e74c3c;">Ver todos</a>
+                </p>
             <?php endif; ?>
 
         </div>
     </section>
-
-    <!-- Resto del contenido... -->
 </main>
 
 <?php include "../componentes/footer.php"; ?>
