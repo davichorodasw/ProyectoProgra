@@ -1,45 +1,44 @@
 <?php
-if (!defined('BASE_PATH')) {
-    $projectRoot = __DIR__ . '/..';
-    $projectRoot = realpath($projectRoot);
 
-    $docRoot = $_SERVER['DOCUMENT_ROOT'];
-
-    if (strpos($projectRoot, $docRoot) === 0) {
-        $relativePath = substr($projectRoot, strlen($docRoot));
-        $basePath = '/' . trim(str_replace('\\', '/', $relativePath), '/') . '/';
-    } else {
-        $basePath = '/';
-    }
-
-    define('BASE_PATH', $basePath);
+if (defined('BASE_PATH')) {
+    return;
 }
 
-if (!defined('BASE_URL')) {
-    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
-    $host = $_SERVER['HTTP_HOST'];
-    define('BASE_URL', $protocol . $host . BASE_PATH);
+$scriptName = $_SERVER['SCRIPT_NAME'];
+$scriptDir  = dirname($scriptName);
+
+if (basename($scriptDir) === 'views') {
+    $scriptDir = dirname($scriptDir);
 }
+
+$basePath = rtrim($scriptDir, '/');
+$basePath = $basePath === '' ? '/' : $basePath . '/';
+
+define('BASE_PATH', $basePath);
+define('BASE_URL', (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') .
+    $_SERVER['HTTP_HOST'] . $basePath);
 
 function url($path = '')
 {
     return BASE_PATH . ltrim($path, '/');
 }
 
-function asset($path)
+function asset($path = '')
 {
     return BASE_URL . ltrim($path, '/');
 }
 
 function isInViews()
 {
-    return strpos($_SERVER['PHP_SELF'], '/views/') !== false;
+    return strpos($_SERVER['SCRIPT_NAME'], '/views/') !== false;
 }
 
 function relativePath($file)
 {
-    if (isInViews()) {
-        return '../' . $file;
-    }
-    return $file;
+    return isInViews() ? '../' . $file : $file;
 }
+
+// Debug opcional (puedes comentar esta línea en producción)
+/*
+echo "<pre>BASE_PATH: " . BASE_PATH . "\nBASE_URL: " . BASE_URL . "\nScript: " . $_SERVER['SCRIPT_NAME'] . "</pre>";
+*/
