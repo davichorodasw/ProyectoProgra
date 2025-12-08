@@ -11,13 +11,133 @@ $currentPage = "mi-cuenta";
 $cssPath = "../css/styles.css";
 $imgPath = "../img/RitmoRetro.png";
 $basePath = "../";
-$extraCss = "../css/mi-cuenta.css";
+$additionalCSS = ["css/mi-cuenta.css"];
+$additionalJS = ["js/mi-cuenta.js"];
 
 require_once '../php/conexion.php';
 $conn = conectarDB();
 
 $usuario_id = $_SESSION['user_id'];
 
+$notificacion = null;
+
+// Obtener datos actuales del usuario
+$query_user = "SELECT nombre, email FROM usuarios WHERE id = ?";
+$stmt_user = mysqli_prepare($conn, $query_user);
+mysqli_stmt_bind_param($stmt_user, "i", $usuario_id);
+mysqli_stmt_execute($stmt_user);
+$result_user = mysqli_stmt_get_result($stmt_user);
+$user = mysqli_fetch_assoc($result_user);
+mysqli_stmt_close($stmt_user);
+
+// Procesar edición de perfil
+if (isset($_POST['editar_perfil'])) {
+    $nombre = mysqli_real_escape_string($conn, $_POST['nombre']);
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+
+    // Validar email único (excepto el propio)
+    $query_email = "SELECT id FROM usuarios WHERE email = ? AND id != ?";
+    $stmt_email = mysqli_prepare($conn, $query_email);
+    mysqli_stmt_bind_param($stmt_email, "si", $email, $usuario_id);
+    mysqli_stmt_execute($stmt_email);
+    mysqli_stmt_store_result($stmt_email);
+
+    if (mysqli_stmt_num_rows($stmt_email) > 0) {
+        $notificacion = [
+            'type' => 'error',
+            'title' => 'Error',
+            'message' => 'El email ya está en uso.'
+        ];
+    } elseif (empty($nombre) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $notificacion = [
+            'type' => 'error',
+            'title' => 'Error',
+            'message' => 'Datos inválidos.'
+        ];
+    } else {
+        $update_perfil = "UPDATE usuarios SET nombre = ?, email = ? WHERE id = ?";
+        $stmt_update = mysqli_prepare($conn, $update_perfil);
+        mysqli_stmt_bind_param($stmt_update, "ssi", $nombre, $email, $usuario_id);
+
+        if (mysqli_stmt_execute($stmt_update)) {
+            $_SESSION['user_name'] = $nombre;  // Actualizar sesión
+            $notificacion = [
+                'type' => 'success',
+                'title' => 'Éxito',
+                'message' => 'Perfil actualizado correctamente.'
+            ];
+            // Refrescar datos
+            $user['nombre'] = $nombre;
+            $user['email'] = $email;
+        } else {
+            $notificacion = [
+                'type' => 'error',
+                'title' => 'Error',
+                'message' => 'No se pudo actualizar el perfil.'
+            ];
+        }
+        mysqli_stmt_close($stmt_update);
+    }
+    mysqli_stmt_close($stmt_email);
+}
+
+// Procesar cambio de contraseña
+if (isset($_POST['cambiar_password'])) {
+    $old_password = $_POST['old_password'];
+    $new_password = $_POST['new_password'];
+    $confirm_password = $_POST['confirm_password'];
+
+    // Obtener password actual
+    $query_pass = "SELECT password FROM usuarios WHERE id = ?";
+    $stmt_pass = mysqli_prepare($conn, $query_pass);
+    mysqli_stmt_bind_param($stmt_pass, "i", $usuario_id);
+    mysqli_stmt_execute($stmt_pass);
+    $result_pass = mysqli_stmt_get_result($stmt_pass);
+    $row_pass = mysqli_fetch_assoc($result_pass);
+    mysqli_stmt_close($stmt_pass);
+
+    if (!password_verify($old_password, $row_pass['password'])) {
+        $notificacion = [
+            'type' => 'error',
+            'title' => 'Error',
+            'message' => 'Contraseña actual incorrecta.'
+        ];
+    } elseif ($new_password !== $confirm_password) {
+        $notificacion = [
+            'type' => 'error',
+            'title' => 'Error',
+            'message' => 'Las nuevas contraseñas no coinciden.'
+        ];
+    } elseif (strlen($new_password) < 8) {
+        $notificacion = [
+            'type' => 'error',
+            'title' => 'Error',
+            'message' => 'La nueva contraseña debe tener al menos 8 caracteres.'
+        ];
+    } else {
+        $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+        $update_pass = "UPDATE usuarios SET password = ? WHERE id = ?";
+        $stmt_update_pass = mysqli_prepare($conn, $update_pass);
+        mysqli_stmt_bind_param($stmt_update_pass, "si", $hashed_password, $usuario_id);
+
+        if (mysqli_stmt_execute($stmt_update_pass)) {
+            $notificacion = [
+                'type' => 'success',
+                'title' => 'Éxito',
+                'message' => 'Contraseña actualizada correctamente.'
+            ];
+        } else {
+            $notificacion = [
+                'type' => 'error',
+                'title' => 'Error',
+                'message' => 'No se pudo actualizar la contraseña.'
+            ];
+        }
+        mysqli_stmt_close($stmt_update_pass);
+    }
+}
+
+// Resto del código para pedidos (sin cambios)
 $query = "SELECT p.*, 
                  (SELECT COUNT(*) FROM detalles_pedido dp WHERE dp.pedido_id = p.id) as total_productos,
                  (SELECT SUM(dp.cantidad) FROM detalles_pedido dp WHERE dp.pedido_id = p.id) as total_items
@@ -49,6 +169,20 @@ include "../componentes/nav.php";
         <p>Gestiona tu información y pedidos</p>
     </div>
 
+    <?php if ($notificacion): ?>
+        <div id="php-notification"
+            data-type="<?= htmlspecialchars($notificacion['type']) ?>"
+            data-title="<?= htmlspecialchars($notificacion['title']) ?>"
+            data-message="<?= htmlspecialchars($notificacion['message']) ?>"
+            style="display: none;">
+        </div>
+        <script>
+            if (typeof checkForPHPNotification === 'function') {
+                checkForPHPNotification();
+            }
+        </script>
+    <?php endif; ?>
+
     <div class="account-container">
         <div class="account-sidebar">
             <div class="user-info">
@@ -65,7 +199,7 @@ include "../componentes/nav.php";
                 </a>
                 <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'user'): ?>
                     <a href="#mis-pedidos" class="nav-item" data-target="mis-pedidos">
-                        <span class="nav-icon=">📦</span>
+                        <span class="nav-icon">📦</span>
                         Mis Pedidos
                     </a>
                 <?php endif; ?>
@@ -86,73 +220,74 @@ include "../componentes/nav.php";
             <div id="mis-datos" class="content-section active">
                 <h2>Información Personal</h2>
 
-                <div class="info-card">
-                    <div class="info-row">
-                        <span class="info-label">Nombre completo:</span>
-                        <span class="info-value"><?= htmlspecialchars($_SESSION['user_name']) ?></span>
+                <form method="POST" class="info-form">
+                    <div class="info-group">
+                        <label for="nombre">Nombre:</label>
+                        <input type="text" id="nombre" name="nombre" value="<?= htmlspecialchars($user['nombre']) ?>" required>
                     </div>
-                    <div class="info-row">
-                        <span class="info-label">Email:</span>
-                        <span class="info-value"><?= htmlspecialchars($_SESSION['user_email']) ?></span>
-                    </div>
-                </div>
 
-                <div class="account-actions">
-                    <button class="button button-outline" onclick="alert('Funcionalidad en desarrollo')">
-                        <span class="btn-icon">✏️</span>
-                        Editar Perfil
-                    </button>
-                    <button class="button button-outline" onclick="alert('Funcionalidad en desarrollo')">
-                        <span class="btn-icon">🔒</span>
-                        Cambiar Contraseña
-                    </button>
-                </div>
+                    <div class="info-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" value="<?= htmlspecialchars($user['email']) ?>" required>
+                    </div>
+
+                    <button type="submit" name="editar_perfil" class="button button-primary">Guardar Cambios</button>
+                </form>
+
+                <h2>Cambiar Contraseña</h2>
+
+                <form method="POST" class="info-form">
+                    <div class="info-group">
+                        <label for="old_password">Contraseña Actual:</label>
+                        <input type="password" id="old_password" name="old_password" required>
+                    </div>
+
+                    <div class="info-group">
+                        <label for="new_password">Nueva Contraseña:</label>
+                        <input type="password" id="new_password" name="new_password" required minlength="8">
+                    </div>
+
+                    <div class="info-group">
+                        <label for="confirm_password">Confirmar Nueva Contraseña:</label>
+                        <input type="password" id="confirm_password" name="confirm_password" required minlength="8">
+                    </div>
+
+                    <button type="submit" name="cambiar_password" class="button button-primary">Cambiar Contraseña</button>
+                </form>
             </div>
 
             <div id="mis-pedidos" class="content-section">
-                <div class="section-header">
-                    <h2>Mis Pedidos</h2>
-                    <p>Historial de tus compras recientes</p>
-                </div>
+                <h2>Mis Pedidos Recientes</h2>
 
                 <?php if (empty($pedidos)): ?>
-                    <div class="empty-orders">
-                        <div class="empty-icon">📦</div>
-                        <h3>Aún no tienes pedidos</h3>
-                        <p>Cuando realices una compra, aparecerá aquí tu historial de pedidos.</p>
-                        <a href="cds.php" class="button button-red">
-                            <span class="btn-icon">🛒</span>
-                            Comenzar a Comprar
-                        </a>
+                    <div class="no-orders">
+                        <span class="no-orders-icon">📭</span>
+                        <p>No tienes pedidos recientes</p>
+                        <a href="../index.php" class="button button-primary">Ir a la tienda</a>
                     </div>
                 <?php else: ?>
                     <div class="orders-list">
                         <?php foreach ($pedidos as $pedido): ?>
                             <div class="order-card">
                                 <div class="order-header">
-                                    <div class="order-info">
-                                        <h4>Pedido #<?= str_pad($pedido['id'], 6, '0', STR_PAD_LEFT) ?></h4>
-                                        <p class="order-date"><?= date('d/m/Y H:i', strtotime($pedido['fecha_pedido'])) ?></p>
-                                    </div>
-                                    <div class="order-status">
-                                        <span class="status-badge status-<?= $pedido['estado'] ?>">
-                                            <?= ucfirst($pedido['estado']) ?>
-                                        </span>
-                                    </div>
+                                    <span class="order-id">Pedido #<?= $pedido['id'] ?></span>
+                                    <span class="order-status <?= strtolower($pedido['estado']) ?>">
+                                        <?= ucfirst($pedido['estado']) ?>
+                                    </span>
                                 </div>
 
                                 <div class="order-details">
                                     <div class="detail-item">
-                                        <span class="detail-label">Productos:</span>
-                                        <span class="detail-value"><?= $pedido['total_productos'] ?> productos</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Items totales:</span>
-                                        <span class="detail-value"><?= $pedido['total_items'] ?> unidades</span>
+                                        <span class="detail-label">Fecha:</span>
+                                        <span class="detail-value"><?= date('d/m/Y H:i', strtotime($pedido['fecha_pedido'])) ?></span>
                                     </div>
                                     <div class="detail-item">
                                         <span class="detail-label">Total:</span>
-                                        <span class="detail-value total-amount">$<?= number_format($pedido['total'], 2) ?></span>
+                                        <span class="detail-value">$<?= number_format($pedido['total'], 2) ?></span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Productos:</span>
+                                        <span class="detail-value"><?= $pedido['total_productos'] ?> (<?= $pedido['total_items'] ?> items)</span>
                                     </div>
                                     <div class="detail-item">
                                         <span class="detail-label">Método de pago:</span>
@@ -165,12 +300,6 @@ include "../componentes/nav.php";
                                         <span class="btn-icon">👁️</span>
                                         Ver Detalles
                                     </a>
-                                    <!--<?php if ($pedido['estado'] === 'pendiente'): ?>
-                                        <button class="button button-small" onclick="alert('Funcionalidad en desarrollo')">
-                                            <span class="btn-icon">❌</span>
-                                            Cancelar Pedido
-                                        </button>
-                                    <?php endif; ?>-->
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -178,9 +307,6 @@ include "../componentes/nav.php";
 
                     <div class="orders-footer">
                         <p>Mostrando <?= count($pedidos) ?> pedidos recientes</p>
-                        <a href="todos_pedidos.php" class="button button-link">
-                            Ver todos los pedidos →
-                        </a>
                     </div>
                 <?php endif; ?>
             </div>
@@ -213,8 +339,5 @@ include "../componentes/nav.php";
         </div>
     </div>
 </main>
-
-<link rel="stylesheet" href="../css/mi-cuenta.css">
-<script src="../js/mi-cuenta.js"></script>
 
 <?php include "../componentes/footer.php"; ?>
