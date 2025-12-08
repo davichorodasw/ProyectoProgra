@@ -54,13 +54,13 @@
             <!-- <label for="remember_me">
                 <input id="remember_me" type="checkbox" name="remember">
                 <span>Recordarme</span>
-            </label> -->
+            </label> 
 
             <a class="auth-link" href="<?php echo isset($forgotPasswordLink)
                                             ? $forgotPasswordLink
                                             : "#olvidado"; ?>">
                 ¿Olvidaste tu contraseña?
-            </a>
+            </a> -->
         </div>
 
         <!-- Botón de Login -->

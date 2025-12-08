@@ -377,3 +377,124 @@
     flex-direction: column;
   }
 }
+
+.main-content.mi-cuenta-page .info-form {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #eee;
+  max-width: 600px;
+  margin: 0 auto 40px auto;
+}
+
+.main-content.mi-cuenta-page .info-form h2 {
+  margin: 0 0 25px 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e74c3c;
+  color: #2c3e50;
+  font-size: 1.4rem;
+  position: relative;
+}
+
+.main-content.mi-cuenta-page .info-form h2::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: #e74c3c;
+  border-radius: 2px;
+}
+
+.main-content.mi-cuenta-page .info-group {
+  margin-bottom: 20px;
+}
+
+.main-content.mi-cuenta-page .info-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #34495e;
+  font-size: 0.95rem;
+}
+
+.main-content.mi-cuenta-page .info-group input[type='text'],
+.main-content.mi-cuenta-page .info-group input[type='email'],
+.main-content.mi-cuenta-page .info-group input[type='password'] {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background-color: #fafafa;
+  box-sizing: border-box;
+}
+
+.main-content.mi-cuenta-page .info-group input:focus {
+  outline: none;
+  border-color: #e74c3c;
+  background-color: white;
+  box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.1);
+  transform: translateY(-1px);
+}
+
+.main-content.mi-cuenta-page .info-group input::placeholder {
+  color: #aaa;
+}
+
+.main-content.mi-cuenta-page .button-primary {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-block;
+  text-align: center;
+  min-width: 200px;
+  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+}
+
+.main-content.mi-cuenta-page .button-primary:hover {
+  background: #c0392b;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+}
+
+.main-content.mi-cuenta-page .button-primary:active {
+  transform: translateY(0);
+}
+
+.main-content.mi-cuenta-page .info-form + .info-form {
+  margin-top: 50px;
+  border-top: 1px dashed #ddd;
+  padding-top: 40px;
+}
+
+.main-content.mi-cuenta-page .info-group.success input {
+  border-color: #27ae60;
+  background-color: #f8fff9;
+}
+
+.main-content.mi-cuenta-page .info-group.error input {
+  border-color: #e74c3c;
+  background-color: #fff5f5;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .main-content.mi-cuenta-page .info-form {
+    padding: 20px;
+    margin: 0 0 30px 0;
+  }
+
+  .main-content.mi-cuenta-page .button-primary {
+    width: 100%;
+  }
+}

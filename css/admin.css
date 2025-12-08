@@ -316,3 +316,73 @@
     grid-template-columns: 1fr;
   }
 }
+
+.status-admin {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-user {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 1.1em;
+  transition: all 0.2s ease;
+  margin: 0 4px;
+}
+
+.btn-view {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.btn-view:hover {
+  background: #c8e6c9;
+  transform: scale(1.05);
+}
+
+.btn-delete {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}
+
+.btn-delete:hover {
+  background: #ffcdd2;
+  transform: scale(1.05);
+}
+
+.content-card table tr th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+  width: 180px;
+}
+
+.content-card table tr td {
+  padding-left: 20px;
+}
+
+/* Responsive para tablas pequeñas */
+@media (max-width: 768px) {
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .btn-action {
+    width: 40px;
+    height: 40px;
+  }
+}
