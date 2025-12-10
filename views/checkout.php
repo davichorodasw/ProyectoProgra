@@ -119,7 +119,6 @@ $total = $subtotal + $envio;
                         </div>
                     </div>
 
-                    <!-- Simulación de datos de tarjeta -->
                     <div id="tarjeta-details" class="payment-details">
                         <div class="form-row">
                             <div class="form-group">

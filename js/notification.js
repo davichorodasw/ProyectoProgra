@@ -1,11 +1,3 @@
-/**
- * Muestra una notificación emergente
- * @param {string} type - Tipo de notificación: 'success', 'error', 'warning', 'info'
- * @param {string} title - Título de la notificación
- * @param {string} message - Mensaje de la notificación
- * @param {number} duration - Duración en milisegundos (default: 5000)
- * @param {string} redirectUrl - URL para redirigir después (opcional)
- */
 function showNotification(
   type,
   title,
@@ -55,21 +47,10 @@ function showNotification(
   }, duration);
 }
 
-/**
- * Muestra una notificación de éxito con redirección
- * @param {string} title - Título
- * @param {string} message - Mensaje
- * @param {string} redirectUrl - URL para redirigir
- */
 function showSuccessAndRedirect(title, message, redirectUrl) {
   showNotification('success', title, message, 5000, redirectUrl);
 }
 
-/**
- * Muestra una notificación de error
- * @param {string} title - Título
- * @param {string} message - Mensaje
- */
 function showError(title, message) {
   showNotification('error', title, message, 5000);
 }

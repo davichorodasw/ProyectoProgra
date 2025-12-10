@@ -47,7 +47,6 @@ if (isset($_SESSION['carrito_mensaje'])) {
     <?php else: ?>
         <div class="carrito-container">
             <div class="carrito-items">
-                <!-- Lista de productos en el carrito -->
                 <?php
                 $total = 0;
                 $total_items = 0;

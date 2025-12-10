@@ -1,4 +1,3 @@
-/* Estilos para formulario de contacto */
 .contact-container {
   max-width: 600px;
   margin: 2rem auto;
@@ -79,7 +78,6 @@
   background: #c0392b;
 }
 
-/* Alertas */
 .alert-success {
   background: #d1edff;
   color: #155724;
@@ -108,7 +106,6 @@
   margin-bottom: 0.25rem;
 }
 
-/* Información de contacto adicional */
 .contact-info {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -142,7 +139,6 @@
   color: #e74c3c;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .contact-container {
     margin: 1rem;

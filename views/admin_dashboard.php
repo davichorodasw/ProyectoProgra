@@ -41,7 +41,6 @@ foreach ($queries as $key => $query) {
     }
 }
 
-// Últimos pedidos
 $query_pedidos = "SELECT p.*, u.nombre as cliente 
                   FROM pedidos p 
                   JOIN usuarios u ON p.usuario_id = u.id 
@@ -50,12 +49,10 @@ $query_pedidos = "SELECT p.*, u.nombre as cliente
 $result_pedidos = mysqli_query($conn, $query_pedidos);
 $ultimos_pedidos = mysqli_fetch_all($result_pedidos, MYSQLI_ASSOC);
 
-// Productos con bajo stock
 $query_bajo_stock = "SELECT * FROM productos WHERE stock < 10 ORDER BY stock ASC LIMIT 5";
 $result_bajo_stock = mysqli_query($conn, $query_bajo_stock);
 $bajo_stock = mysqli_fetch_all($result_bajo_stock, MYSQLI_ASSOC);
 
-// Últimos productos añadidos
 $query_ultimos_productos = "SELECT * FROM productos ORDER BY id DESC LIMIT 5";
 $result_ultimos_productos = mysqli_query($conn, $query_ultimos_productos);
 $ultimos_productos = mysqli_fetch_all($result_ultimos_productos, MYSQLI_ASSOC);
@@ -73,7 +70,6 @@ include "../componentes/nav.php";
     </div>
 
     <div class="admin-container">
-        <!-- Sidebar de navegación admin -->
         <div class="admin-sidebar">
             <nav class="admin-nav">
                 <a href="admin_dashboard.php" class="nav-item active">
@@ -111,9 +107,7 @@ include "../componentes/nav.php";
             </nav>
         </div>
 
-        <!-- Contenido principal -->
         <div class="admin-content">
-            <!-- Estadísticas -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon" style="background-color: #3498db;">
@@ -196,9 +190,7 @@ include "../componentes/nav.php";
                 </div>
             </div>
 
-            <!-- Secciones principales -->
             <div class="content-grid">
-                <!-- Últimos pedidos -->
                 <div class="content-card">
                     <div class="card-header">
                         <h3>Últimos Pedidos</h3>
@@ -228,7 +220,6 @@ include "../componentes/nav.php";
                     <?php endif; ?>
                 </div>
 
-                <!-- Productos con bajo stock -->
                 <div class="content-card">
                     <div class="card-header">
                         <h3>Productos con Bajo Stock</h3>
@@ -262,7 +253,6 @@ include "../componentes/nav.php";
                     <?php endif; ?>
                 </div>
 
-                <!-- Últimos productos añadidos -->
                 <div class="content-card">
                     <div class="card-header">
                         <h3>Últimos Productos Añadidos</h3>
@@ -303,7 +293,6 @@ include "../componentes/nav.php";
                     <?php endif; ?>
                 </div>
 
-                <!-- Acciones rápidas -->
                 <div class="content-card">
                     <div class="card-header">
                         <h3>Acciones Rápidas</h3>

@@ -102,7 +102,6 @@ include "../componentes/nav.php";
             </div>
         </div>
 
-        <!-- Información de envío -->
         <div class="pedido-info-card">
             <h3>Información de Envío</h3>
             <div class="info-grid">
@@ -133,7 +132,6 @@ include "../componentes/nav.php";
             </div>
         </div>
 
-        <!-- Productos del pedido -->
         <div class="pedido-productos">
             <h3>Productos en este pedido</h3>
 

@@ -187,7 +187,6 @@ include "../componentes/nav.php";
                 </div>
             </div>
 
-            <!-- Barra de herramientas -->
             <div class="toolbar">
                 <div class="search-box">
                     <form method="GET" action="">
@@ -208,7 +207,6 @@ include "../componentes/nav.php";
                 </div>
             </div>
 
-            <!-- Filtros rápidos -->
             <div class="filters">
                 <a href="?filter=all<?= $search ? '&search=' . urlencode($search) : '' ?><?= $estado ? '&estado=' . urlencode($estado) : '' ?>"
                     class="filter-btn <?= $filter === 'all' ? 'active' : '' ?>">

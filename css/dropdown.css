@@ -63,7 +63,6 @@
   transform: rotate(180deg);
 }
 
-/* Estilos para usuario */
 .user-info {
   display: flex;
   align-items: center;
