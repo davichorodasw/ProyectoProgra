@@ -1,5 +1,6 @@
 <?php
 require_once 'conexion.php';
+require_once 'manejoUsuarios.php';
 
 session_start();
 
@@ -12,6 +13,8 @@ $conn = conectarDB();
 $name = mysqli_real_escape_string($conn, trim($_POST['name']));
 $email = mysqli_real_escape_string($conn, trim($_POST['email']));
 $phone = mysqli_real_escape_string($conn, trim($_POST['phone']));
+mysqli_close($conn);
+
 $password = $_POST['password'];
 $password_confirmation = $_POST['password_confirmation'];
 $terms = isset($_POST['terms']) ? 1 : 0;
@@ -50,11 +53,8 @@ if (!empty($errors)) {
     exit;
 }
 
-$checkEmailQuery = "SELECT id FROM usuarios WHERE email = '$email'";
-$result = mysqli_query($conn, $checkEmailQuery);
-
-if (mysqli_num_rows($result) > 0) {
-    mysqli_close($conn);
+// comprobar email con la función del manejo
+if (verificarEmailExistente($email)) {
     $query = http_build_query([
         'error' => urlencode('El email ya está registrado'),
         'name' => $name,
@@ -68,33 +68,28 @@ if (mysqli_num_rows($result) > 0) {
 // Hash de la contraseña
 $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
-$insertQuery = "INSERT INTO usuarios (nombre, email, telefono, password) 
-                VALUES ('$name', '$email', '$phone', '$password_hash')";
+// crear usuario con la función
+$created_id = crearUsuario($name, $email, $phone, $password_hash);
 
-if (mysqli_query($conn, $insertQuery)) { // si se crea el usuario ya iniciar sesión
-    $user_id = mysqli_insert_id($conn);
-
-    $_SESSION['user_id'] = $user_id;
+if ($created_id !== false) { // si se crea el usuario ya iniciar sesión
+    $_SESSION['user_id'] = $created_id;
     $_SESSION['user_name'] = $name;
     $_SESSION['user_email'] = $email;
     $_SESSION['user_rol'] = 'user';
     $_SESSION['logged_in'] = true;
 
     $userObj = new stdClass();
-    $userObj->id = $user_id;
+    $userObj->id = $created_id;
     $userObj->nombre = $name;
     $userObj->email = $email;
     $userObj->rol = 'user';
     $_SESSION['identity'] = $userObj;
 
-    mysqli_close($conn);
     header('Location: ../index.php');
     exit;
 } else {
-    $error = mysqli_error($conn);
-    mysqli_close($conn);
     $query = http_build_query([
-        'error' => urlencode('Error al registrar el usuario: ' . $error),
+        'error' => urlencode('Error al registrar el usuario'),
         'name' => $name,
         'email' => $email,
         'phone' => $phone

@@ -4,17 +4,10 @@ session_start();
 if (isset($_POST['producto_id'])) {
     $producto_id = intval($_POST['producto_id']);
 
-    require_once '../php/conexion.php';
-    $conn = conectarDB();
+    require_once '../php/manejoCarrito.php';
+    $producto = obtenerProductoParaCarrito($producto_id);
 
-    $query = "SELECT id, titulo, artista, tipo, precio, imagen, stock FROM productos WHERE id = ?";
-    $stmt = mysqli_prepare($conn, $query);
-    mysqli_stmt_bind_param($stmt, "i", $producto_id);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-
-    if ($result && mysqli_num_rows($result) > 0) {
-        $producto = mysqli_fetch_assoc($result);
+    if ($producto) {
 
         if (!isset($_SESSION['carrito']) || !is_array($_SESSION['carrito'])) {
             $_SESSION['carrito'] = [];
@@ -70,8 +63,6 @@ if (isset($_POST['producto_id'])) {
                 ];
             }
         }
-
-        mysqli_stmt_close($stmt);
     } else {
         $_SESSION['carrito_mensaje_temp'] = [
             'tipo' => 'error',
@@ -79,8 +70,6 @@ if (isset($_POST['producto_id'])) {
             'mensaje' => 'Producto no encontrado'
         ];
     }
-
-    mysqli_close($conn);
 } else {
     $_SESSION['carrito_mensaje_temp'] = [
         'tipo' => 'error',

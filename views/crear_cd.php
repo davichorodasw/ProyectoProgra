@@ -30,57 +30,77 @@ if (isset($_POST['guardar'])) {
     $descripcion = $db->real_escape_string($_POST['descripcion']);
     $imagen      = 'default.png';
 
-    if (!empty($_FILES['imagen']['name']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
-        $file = $_FILES['imagen'];
+    if ($precio < 0) {
+        $notificacion = [
+            'type' => 'error',
+            'title' => 'Precio inválido',
+            'message' => 'El precio no puede ser negativo.'
+        ];
+    } elseif ($stock < 0) {
+        $notificacion = [
+            'type' => 'error',
+            'title' => 'Stock inválido',
+            'message' => 'El stock no puede ser negativo.'
+        ];
+    }
 
-        $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-        $maxSize = 2 * 1024 * 1024;
+    if (!$notificacion) {
+        if (!empty($_FILES['imagen']['name']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
+            $file = $_FILES['imagen'];
 
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $detectedType = finfo_file($finfo, $file['tmp_name']);
-        finfo_close($finfo);
+            $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+            $maxSize = 2 * 1024 * 1024;
 
-        if (!in_array($detectedType, $allowedTypes)) {
-            $notificacion = ['type' => 'error', 'title' => 'Error', 'message' => 'Solo se permiten JPG, PNG o WebP'];
-        } elseif ($file['size'] > $maxSize) {
-            $notificacion = ['type' => 'error', 'title' => 'Error', 'message' => 'La imagen no debe pesar más de 2 MB'];
-        } else {
-            $uploadDir = __DIR__ . '/../img/covers/';
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $detectedType = finfo_file($finfo, $file['tmp_name']);
+            finfo_close($finfo);
 
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
-            }
-
-            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-            $filename = time() . '_' . bin2hex(random_bytes(8)) . '.' . strtolower($ext);
-            $destination = $uploadDir . $filename;
-
-            if (move_uploaded_file($file['tmp_name'], $destination)) {
-                $imagen = $filename;
+            if (!in_array($detectedType, $allowedTypes)) {
+                $notificacion = ['type' => 'error', 'title' => 'Error', 'message' => 'Solo se permiten JPG, PNG o WebP'];
+            } elseif ($file['size'] > $maxSize) {
+                $notificacion = ['type' => 'error', 'title' => 'Error', 'message' => 'La imagen no debe pesar más de 2 MB'];
             } else {
-                $notificacion = ['type' => 'error', 'title' => 'Error', 'message' => 'No se pudo guardar la imagen (permisos?)'];
+                $uploadDir = __DIR__ . '/../img/covers/';
+
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+
+                $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+                $filename = time() . '_' . bin2hex(random_bytes(8)) . '.' . strtolower($ext);
+                $destination = $uploadDir . $filename;
+
+                if (move_uploaded_file($file['tmp_name'], $destination)) {
+                    $imagen = $filename;
+                } else {
+                    $notificacion = ['type' => 'error', 'title' => 'Error', 'message' => 'No se pudo guardar la imagen (permisos?)'];
+                }
+            }
+        }
+
+        if (!$notificacion) {
+
+            $sql = "INSERT INTO productos (tipo, titulo, artista, genero, precio, imagen, descripcion, stock) 
+                    VALUES ('$tipo', '$titulo', '$artista', '$genero', $precio, '$imagen', '$descripcion', $stock)";
+
+            if ($db->query($sql)) {
+                $exito = true;
+                $notificacion = [
+                    'type' => 'success',
+                    'title' => '¡CD creado con éxito!',
+                    'message' => 'Redirigiendo a CDs...',
+                    'redirect' => 'cds.php'
+                ];
+            } else {
+                $notificacion = [
+                    'type' => 'error',
+                    'title' => 'Error',
+                    'message' => 'No se pudo crear el CD. ' . $db->error
+                ];
             }
         }
     }
 
-    $sql = "INSERT INTO productos (tipo, titulo, artista, genero, precio, imagen, descripcion, stock) 
-            VALUES ('$tipo', '$titulo', '$artista', '$genero', $precio, '$imagen', '$descripcion', $stock)";
-
-    if ($db->query($sql)) {
-        $exito = true;
-        $notificacion = [
-            'type' => 'success',
-            'title' => '¡CD creado con éxito!',
-            'message' => 'Redirigiendo a CDs...',
-            'redirect' => 'cds.php'
-        ];
-    } else {
-        $notificacion = [
-            'type' => 'error',
-            'title' => 'Error',
-            'message' => 'No se pudo crear el CD. ' . $db->error
-        ];
-    }
     $db->close();
 }
 ?>
@@ -139,12 +159,12 @@ if (isset($_POST['guardar'])) {
             <div style="display: flex; gap: 20px;">
                 <div class="form-group" style="flex: 1;">
                     <label for="precio"><strong>Precio ($):</strong></label>
-                    <input type="number" name="precio" step="0.01" required style="width: 100%; padding: 8px;"
+                    <input type="number" name="precio" step="0.01" min="0" required style="width: 100%; padding: 8px;"
                         value="<?= isset($_POST['precio']) && !$exito ? htmlspecialchars($_POST['precio']) : '' ?>">
                 </div>
                 <div class="form-group" style="flex: 1;">
                     <label for="stock"><strong>Stock:</strong></label>
-                    <input type="number" name="stock" required style="width: 100%; padding: 8px;"
+                    <input type="number" name="stock" min="0" required style="width: 100%; padding: 8px;"
                         value="<?= isset($_POST['stock']) && !$exito ? htmlspecialchars($_POST['stock']) : '' ?>">
                 </div>
             </div>

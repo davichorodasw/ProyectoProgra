@@ -15,6 +15,7 @@ $additionalCSS = ["css/mi-cuenta.css"];
 $additionalJS = ["js/mi-cuenta.js"];
 
 require_once '../php/conexion.php';
+require_once '../php/manejoUsuarios.php';
 $conn = conectarDB();
 
 $usuario_id = $_SESSION['user_id'];
@@ -22,13 +23,7 @@ $usuario_id = $_SESSION['user_id'];
 $notificacion = null;
 
 // Obtener datos actuales del usuario
-$query_user = "SELECT nombre, email FROM usuarios WHERE id = ?";
-$stmt_user = mysqli_prepare($conn, $query_user);
-mysqli_stmt_bind_param($stmt_user, "i", $usuario_id);
-mysqli_stmt_execute($stmt_user);
-$result_user = mysqli_stmt_get_result($stmt_user);
-$user = mysqli_fetch_assoc($result_user);
-mysqli_stmt_close($stmt_user);
+$user = obtenerPerfilUsuario($usuario_id);
 
 // Procesar edición de perfil
 if (isset($_POST['editar_perfil'])) {
@@ -36,13 +31,7 @@ if (isset($_POST['editar_perfil'])) {
     $email = mysqli_real_escape_string($conn, $_POST['email']);
 
     // Validar email único (excepto el propio)
-    $query_email = "SELECT id FROM usuarios WHERE email = ? AND id != ?";
-    $stmt_email = mysqli_prepare($conn, $query_email);
-    mysqli_stmt_bind_param($stmt_email, "si", $email, $usuario_id);
-    mysqli_stmt_execute($stmt_email);
-    mysqli_stmt_store_result($stmt_email);
-
-    if (mysqli_stmt_num_rows($stmt_email) > 0) {
+    if (verificarEmailParaActualizar($email, $usuario_id)) {
         $notificacion = [
             'type' => 'error',
             'title' => 'Error',
@@ -55,11 +44,7 @@ if (isset($_POST['editar_perfil'])) {
             'message' => 'Datos inválidos.'
         ];
     } else {
-        $update_perfil = "UPDATE usuarios SET nombre = ?, email = ? WHERE id = ?";
-        $stmt_update = mysqli_prepare($conn, $update_perfil);
-        mysqli_stmt_bind_param($stmt_update, "ssi", $nombre, $email, $usuario_id);
-
-        if (mysqli_stmt_execute($stmt_update)) {
+        if (actualizarPerfilUsuario($usuario_id, $nombre, $email)) {
             $_SESSION['user_name'] = $nombre;  // Actualizar sesión
             $notificacion = [
                 'type' => 'success',
@@ -76,9 +61,7 @@ if (isset($_POST['editar_perfil'])) {
                 'message' => 'No se pudo actualizar el perfil.'
             ];
         }
-        mysqli_stmt_close($stmt_update);
     }
-    mysqli_stmt_close($stmt_email);
 }
 
 // Procesar cambio de contraseña
@@ -88,13 +71,7 @@ if (isset($_POST['cambiar_password'])) {
     $confirm_password = $_POST['confirm_password'];
 
     // Obtener password actual
-    $query_pass = "SELECT password FROM usuarios WHERE id = ?";
-    $stmt_pass = mysqli_prepare($conn, $query_pass);
-    mysqli_stmt_bind_param($stmt_pass, "i", $usuario_id);
-    mysqli_stmt_execute($stmt_pass);
-    $result_pass = mysqli_stmt_get_result($stmt_pass);
-    $row_pass = mysqli_fetch_assoc($result_pass);
-    mysqli_stmt_close($stmt_pass);
+    $row_pass = obtenerPasswordUsuario($usuario_id);
 
     if (!password_verify($old_password, $row_pass['password'])) {
         $notificacion = [
@@ -116,11 +93,7 @@ if (isset($_POST['cambiar_password'])) {
         ];
     } else {
         $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-        $update_pass = "UPDATE usuarios SET password = ? WHERE id = ?";
-        $stmt_update_pass = mysqli_prepare($conn, $update_pass);
-        mysqli_stmt_bind_param($stmt_update_pass, "si", $hashed_password, $usuario_id);
-
-        if (mysqli_stmt_execute($stmt_update_pass)) {
+        if (actualizarPasswordUsuario($usuario_id, $hashed_password)) {
             $notificacion = [
                 'type' => 'success',
                 'title' => 'Éxito',
@@ -133,30 +106,11 @@ if (isset($_POST['cambiar_password'])) {
                 'message' => 'No se pudo actualizar la contraseña.'
             ];
         }
-        mysqli_stmt_close($stmt_update_pass);
     }
 }
 
-// Resto del código para pedidos (sin cambios)
-$query = "SELECT p.*, 
-                 (SELECT COUNT(*) FROM detalles_pedido dp WHERE dp.pedido_id = p.id) as total_productos,
-                 (SELECT SUM(dp.cantidad) FROM detalles_pedido dp WHERE dp.pedido_id = p.id) as total_items
-          FROM pedidos p 
-          WHERE p.usuario_id = ? 
-          ORDER BY p.fecha_pedido DESC 
-          LIMIT 10";
+$pedidos = obtenerPedidosUsuarioResumen($usuario_id, 10);
 
-$stmt = mysqli_prepare($conn, $query);
-mysqli_stmt_bind_param($stmt, "i", $usuario_id);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
-
-$pedidos = [];
-while ($row = mysqli_fetch_assoc($result)) {
-    $pedidos[] = $row;
-}
-
-mysqli_stmt_close($stmt);
 mysqli_close($conn);
 
 include "../componentes/header.php";
@@ -197,7 +151,7 @@ include "../componentes/nav.php";
                     <span class="nav-icon">📋</span>
                     Mis Datos
                 </a>
-                <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'user'): ?>
+                <?php if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin'): ?>
                     <a href="#mis-pedidos" class="nav-item" data-target="mis-pedidos">
                         <span class="nav-icon">📦</span>
                         Mis Pedidos
@@ -308,6 +262,13 @@ include "../componentes/nav.php";
                     <div class="orders-footer">
                         <p>Mostrando <?= count($pedidos) ?> pedidos recientes</p>
                     </div>
+
+                    <div class="orders-footer">
+                        <a href="mis_pedidos.php" class="button button-primary">
+                            Ver todos mis pedidos
+                        </a>
+                    </div>
+
                 <?php endif; ?>
             </div>
 

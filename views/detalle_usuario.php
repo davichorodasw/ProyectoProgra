@@ -11,23 +11,16 @@ if (!isset($_GET['id'])) {
 }
 $id = intval($_GET['id']);
 
-require_once '../php/conexion.php';
-$conn = conectarDB();
+require_once '../php/manejoUsuarios.php';
 
-$stmt = mysqli_prepare($conn, "SELECT * FROM usuarios WHERE id = ?");
-mysqli_stmt_bind_param($stmt, "i", $id);
-mysqli_stmt_execute($stmt);
-$usuario = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+$usuario = obtenerUsuarioPorId($id);
 
 if (!$usuario) {
     header('Location: gestion_usuarios.php?error=Usuario+no+encontrado');
     exit;
 }
 
-$stmt2 = mysqli_prepare($conn, "SELECT id, fecha_pedido, total, estado FROM pedidos WHERE usuario_id = ? ORDER BY fecha_pedido DESC");
-mysqli_stmt_bind_param($stmt2, "i", $id);
-mysqli_stmt_execute($stmt2);
-$pedidos = mysqli_fetch_all(mysqli_stmt_get_result($stmt2), MYSQLI_ASSOC);
+$pedidos = obtenerPedidosDeUsuario($id);
 
 mysqli_close($conn);
 

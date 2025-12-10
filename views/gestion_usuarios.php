@@ -9,8 +9,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSI
 $pageTitle = "Gestión de Usuarios - Ritmo Retro";
 $additionalCSS = ["css/admin.css"];
 
-require_once '../php/conexion.php';
-$conn = conectarDB();
+require_once '../php/manejoUsuarios.php';
 
 $search = $_GET['search'] ?? '';
 $rol     = $_GET['rol'] ?? '';
@@ -18,40 +17,10 @@ $page    = max(1, intval($_GET['page'] ?? 1));
 $limit   = 25;
 $offset  = ($page - 1) * $limit;
 
-$where = "WHERE 1=1";
-$params = [];
-$types  = "";
-
-if ($search !== '') {
-    $term = "%" . mysqli_real_escape_string($conn, $search) . "%";
-    $where .= " AND (nombre LIKE ? OR email LIKE ?)";
-    $params[] = $term;
-    $params[] = $term;
-    $types .= "ss";
-}
-if ($rol !== '' && in_array($rol, ['admin', 'user'])) {
-    $where .= " AND rol = ?";
-    $params[] = $rol;
-    $types .= "s";
-}
-
-$count_stmt = mysqli_prepare($conn, "SELECT COUNT(*) AS total FROM usuarios $where");
-if (!empty($params)) mysqli_stmt_bind_param($count_stmt, $types, ...$params);
-mysqli_stmt_execute($count_stmt);
-$total_rows = mysqli_fetch_assoc(mysqli_stmt_get_result($count_stmt))['total'];
+$total_rows = contarUsuariosFiltrados($search, $rol);
 $total_pages = ceil($total_rows / $limit);
 
-$query = "SELECT id, nombre, email, telefono, rol, fecha_registro FROM usuarios $where ORDER BY id DESC LIMIT ? OFFSET ?";
-$types .= "ii";
-$params[] = $limit;
-$params[] = $offset;
-
-$stmt = mysqli_prepare($conn, $query);
-mysqli_stmt_bind_param($stmt, $types, ...$params);
-mysqli_stmt_execute($stmt);
-$usuarios = mysqli_fetch_all(mysqli_stmt_get_result($stmt), MYSQLI_ASSOC);
-
-mysqli_close($conn);
+$usuarios = obtenerUsuariosFiltrados($search, $rol, $limit, $offset);
 
 include "../componentes/header.php";
 include "../componentes/nav.php";
@@ -70,12 +39,10 @@ include "../componentes/nav.php";
 
             <div class="stats-grid">
                 <?php
-                $conn = conectarDB();
-                $res = mysqli_query($conn, "SELECT COUNT(*) AS total FROM usuarios");
-                $total = mysqli_fetch_assoc($res)['total'] ?? 0;
-                $res = mysqli_query($conn, "SELECT COUNT(*) AS admins FROM usuarios WHERE rol='admin'");
-                $admins = mysqli_fetch_assoc($res)['admins'] ?? 0;
-                mysqli_close($conn);
+                $totalRow = obtenerTotalUsuarios();
+                $total = $totalRow['total'] ?? 0;
+                $adminsRow = obtenerTotalAdmins();
+                $admins = $adminsRow['admins'] ?? 0;
                 ?>
                 <div class="stat-card">
                     <div class="stat-icon" style="background-color:#34495e;">👤</div>

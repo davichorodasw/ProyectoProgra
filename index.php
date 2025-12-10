@@ -5,6 +5,7 @@ $pageTitle = "Ritmo Retro";
 $currentPage = "inicio";
 
 require_once 'config/paths.php';
+require_once 'php/manejoProductos.php';
 
 include "componentes/header.php";
 include "componentes/nav.php";
@@ -30,72 +31,59 @@ include "componentes/nav.php";
         <div class="products-grid">
 
             <?php
-            $db = new mysqli('localhost', 'root', '', 'ritmoretro');
-            if ($db->connect_error) {
-                echo "<p style='text-align:center; color:#e74c3c;'>Error al cargar productos destacados.</p>";
-            } else {
-                $db->set_charset("utf8");
+            $productos = obtenerProductosDestacados();
 
-                // 3 últimos productos
-                $sql = "SELECT * FROM productos ORDER BY id DESC LIMIT 3";
-                $resultado = $db->query($sql);
-
-                if ($resultado && $resultado->num_rows > 0):
-                    while ($prod = $resultado->fetch_object()): // usamos fetch_object() → acceso como $prod->titulo
-                        $img = (!empty($prod->imagen) && $prod->imagen !== 'default.png') ? $prod->imagen : 'default.png';
-                        $tipoLabel = $prod->tipo === 'cd' ? 'CD' : 'Vinilo';
-                        $tipoClass = $prod->tipo === 'cd' ? 'cd-card' : 'vinyl-card';
-                        $tipoImageClass = $prod->tipo === 'cd' ? 'cd-image' : 'vinyl-image';
-                        $tipoLabelClass = $prod->tipo === 'cd' ? 'cd-label' : 'vinyl-label';
+            if (!empty($productos)):
+                foreach ($productos as $prod):
+                    $img = (!empty($prod->imagen) && $prod->imagen !== 'default.png') ? $prod->imagen : 'default.png';
+                    $tipoLabel = $prod->tipo === 'cd' ? 'CD' : 'Vinilo';
+                    $tipoClass = $prod->tipo === 'cd' ? 'cd-card' : 'vinyl-card';
+                    $tipoImageClass = $prod->tipo === 'cd' ? 'cd-image' : 'vinyl-image';
+                    $tipoLabelClass = $prod->tipo === 'cd' ? 'cd-label' : 'vinyl-label';
             ?>
-                        <div class="product-card <?= $tipoClass ?> featured-card">
-                            <div class="product-image <?= $tipoImageClass ?>">
-                                <span class="<?= $tipoLabelClass ?>"><?= $tipoLabel ?></span>
-                                <a href="views/<?= $prod->tipo === 'cd' ? 'cds' : 'vinilos' ?>.php">
-                                    <img src="views/img/covers/<?= htmlspecialchars($img) ?>"
-                                        alt="<?= htmlspecialchars($prod->titulo) ?>"
-                                        style="width:100%; height:100%; object-fit:cover;">
-                                </a>
-                            </div>
-
-                            <div class="product-info">
-                                <h3>
-                                    <a href="views/<?= $prod->tipo === 'cd' ? 'cds' : 'vinilos' ?>.php"
-                                        style="color:inherit; text-decoration:none;">
-                                        <?= htmlspecialchars($prod->titulo) ?>
-                                    </a>
-                                </h3>
-                                <p class="artist"><?= htmlspecialchars($prod->artista) ?></p>
-                                <p class="genre" style="font-size:0.9em; color:#e74c3c; margin:5px 0;">
-                                    <?= ucfirst(htmlspecialchars($prod->genero)) ?>
-                                </p>
-
-                                <div class="price-section" style="margin:10px 0;">
-                                    <span class="price">$<?= number_format($prod->precio, 2) ?></span>
-                                </div>
-
-                                <form action="procesos/agregar_carrito.php" method="POST" style="margin:0;">
-                                    <input type="hidden" name="producto_id" value="<?= $prod->id ?>">
-                                    <button type="submit" class="add-to-cart"
-                                        style="width:100%; padding:10px; font-size:0.9em;">
-                                        Añadir al Carrito
-                                    </button>
-                                </form>
-                            </div>
+                    <div class="product-card <?= $tipoClass ?> featured-card">
+                        <div class="product-image <?= $tipoImageClass ?>">
+                            <span class="<?= $tipoLabelClass ?>"><?= $tipoLabel ?></span>
+                            <a href="views/<?= $prod->tipo === 'cd' ? 'cds' : 'vinilos' ?>.php">
+                                <img src="img/covers/<?= htmlspecialchars($img) ?>"
+                                    alt="<?= htmlspecialchars($prod->titulo) ?>"
+                                    style="width:100%; height:100%; object-fit:cover;">
+                            </a>
                         </div>
-                    <?php
-                    endwhile;
-                else:
-                    ?>
-                    <p style="grid-column: 1 / -1; text-align:center; color:#666; font-size:1.1em;">
-                        No hay productos disponibles aún.
-                    </p>
-            <?php
-                endif;
-                $db->close();
-            }
-            ?>
 
+                        <div class="product-info">
+                            <h3>
+                                <a href="views/<?= $prod->tipo === 'cd' ? 'cds' : 'vinilos' ?>.php"
+                                    style="color:inherit; text-decoration:none;">
+                                    <?= htmlspecialchars($prod->titulo) ?>
+                                </a>
+                            </h3>
+                            <p class="artist"><?= htmlspecialchars($prod->artista) ?></p>
+                            <p class="genre" style="font-size:0.9em; color:#e74c3c; margin:5px 0;">
+                                <?= ucfirst(htmlspecialchars($prod->genero)) ?>
+                            </p>
+
+                            <div class="price-section" style="margin:10px 0;">
+                                <span class="price">$<?= number_format($prod->precio, 2) ?></span>
+                            </div>
+
+                            <form action="procesos/agregar_carrito.php" method="POST" style="margin:0;">
+                                <input type="hidden" name="producto_id" value="<?= $prod->id ?>">
+                                <button type="submit" class="add-to-cart"
+                                    style="width:100%; padding:10px; font-size:0.9em;">
+                                    Añadir al Carrito
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                <?php
+                endforeach;
+            else:
+                ?>
+                <p style="grid-column: 1 / -1; text-align:center; color:#666; font-size:1.1em;">
+                    No hay productos disponibles aún.
+                </p>
+            <?php endif; ?>
         </div>
     </section>
 
