@@ -7,9 +7,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 require_once 'conexion.php';
+require_once 'manejoUsuarios.php';
 
 $conn = conectarDB();
 $email = mysqli_real_escape_string($conn, trim($_POST['email']));
+mysqli_close($conn);
+
 $password = $_POST['password'];
 
 if (empty($email) || empty($password)) {
@@ -17,17 +20,12 @@ if (empty($email) || empty($password)) {
     exit;
 }
 
-$query = "SELECT id, nombre, email, password, rol FROM usuarios WHERE email = '$email'";
-$result = mysqli_query($conn, $query);
+$usuario = obtenerUsuarioPorEmail($email);
 
-if (mysqli_num_rows($result) === 0) {
-    mysqli_close($conn);
+if (!$usuario) {
     header('Location: ../views/login.php?error=Email+o+contraseña+incorrectos&email=' . urlencode($email));
     exit;
 }
-
-$usuario = mysqli_fetch_assoc($result);
-mysqli_close($conn);
 
 if (!password_verify($password, $usuario['password'])) {
     header('Location: ../views/login.php?error=Email+o+contraseña+incorrectos&email=' . urlencode($email));
