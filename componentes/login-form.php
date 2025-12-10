@@ -1,7 +1,6 @@
 <div class="auth-container">
     <h2>Iniciar Sesión</h2>
 
-    <!-- Mostrar errores (simulado para PHP simple) -->
     <?php if (isset($errors) && !empty($errors)): ?>
         <div class="alert-danger">
             <strong>¡Ups! Algo salió mal.</strong>
@@ -13,7 +12,6 @@
         </div>
     <?php endif; ?>
 
-    <!-- Mostrar mensajes de sesión -->
     <?php if (isset($status) && !empty($status)): ?>
         <div class="alert-success" style="margin-bottom: 1.5rem;">
             <?php echo $status; ?>
@@ -23,7 +21,6 @@
     <form method="POST" action="<?php echo isset($formAction)
                                     ? $formAction
                                     : "../php/conexion.php"; ?>">
-        <!-- Email -->
         <div class="form-group">
             <label for="email">Correo Electrónico</label>
             <input
@@ -38,7 +35,6 @@
                 placeholder="tu@email.com">
         </div>
 
-        <!-- Contraseña -->
         <div class="form-group">
             <label for="password">Contraseña</label>
             <input
@@ -49,7 +45,6 @@
                 placeholder="Tu contraseña">
         </div>
 
-        <!-- Recordarme y Olvidé mi contraseña -->
         <div class="auth-options">
             <!-- <label for="remember_me">
                 <input id="remember_me" type="checkbox" name="remember">
@@ -63,7 +58,6 @@
             </a> -->
         </div>
 
-        <!-- Botón de Login -->
         <button type="submit" class="btn btn-primary submit-btn" style="margin-top: 2rem;">
             Entrar
         </button>

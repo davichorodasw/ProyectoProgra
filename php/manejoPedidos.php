@@ -223,7 +223,6 @@ class ManejoPedidos
     {
         $conn = conectarDB();
 
-        // Verificar existencia
         $sqlCheck = "SELECT id FROM pedidos WHERE id = ?";
         $st = $conn->prepare($sqlCheck);
         $st->bind_param("i", $pedido_id);
@@ -237,14 +236,12 @@ class ManejoPedidos
         }
         $st->close();
 
-        // Actualizar estado
         $sqlUpdate = "UPDATE pedidos SET estado = ?, fecha_actualizacion = NOW() WHERE id = ?";
         $stUpdate = $conn->prepare($sqlUpdate);
         $stUpdate->bind_param("si", $estado, $pedido_id);
         $stUpdate->execute();
         $stUpdate->close();
 
-        // Reponer stock si se cancela
         if ($estado === 'cancelado') {
             $sqlDet = "SELECT producto_id, cantidad FROM detalles_pedido WHERE pedido_id = ?";
             $ds = $conn->prepare($sqlDet);

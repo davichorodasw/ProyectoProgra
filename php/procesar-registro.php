@@ -53,7 +53,6 @@ if (!empty($errors)) {
     exit;
 }
 
-// comprobar email con la función del manejo
 if (verificarEmailExistente($email)) {
     $query = http_build_query([
         'error' => urlencode('El email ya está registrado'),

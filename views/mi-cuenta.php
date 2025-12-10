@@ -22,15 +22,12 @@ $usuario_id = $_SESSION['user_id'];
 
 $notificacion = null;
 
-// Obtener datos actuales del usuario
 $user = obtenerPerfilUsuario($usuario_id);
 
-// Procesar edición de perfil
 if (isset($_POST['editar_perfil'])) {
     $nombre = mysqli_real_escape_string($conn, $_POST['nombre']);
     $email = mysqli_real_escape_string($conn, $_POST['email']);
 
-    // Validar email único (excepto el propio)
     if (verificarEmailParaActualizar($email, $usuario_id)) {
         $notificacion = [
             'type' => 'error',
@@ -45,13 +42,12 @@ if (isset($_POST['editar_perfil'])) {
         ];
     } else {
         if (actualizarPerfilUsuario($usuario_id, $nombre, $email)) {
-            $_SESSION['user_name'] = $nombre;  // Actualizar sesión
+            $_SESSION['user_name'] = $nombre;
             $notificacion = [
                 'type' => 'success',
                 'title' => 'Éxito',
                 'message' => 'Perfil actualizado correctamente.'
             ];
-            // Refrescar datos
             $user['nombre'] = $nombre;
             $user['email'] = $email;
         } else {
@@ -64,13 +60,11 @@ if (isset($_POST['editar_perfil'])) {
     }
 }
 
-// Procesar cambio de contraseña
 if (isset($_POST['cambiar_password'])) {
     $old_password = $_POST['old_password'];
     $new_password = $_POST['new_password'];
     $confirm_password = $_POST['confirm_password'];
 
-    // Obtener password actual
     $row_pass = obtenerPasswordUsuario($usuario_id);
 
     if (!password_verify($old_password, $row_pass['password'])) {

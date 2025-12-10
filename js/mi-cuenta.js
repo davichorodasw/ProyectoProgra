@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
   console.log('Mi Cuenta JS cargado');
 
-  // Navegación entre secciones
   const navItems = document.querySelectorAll('.nav-item');
   const contentSections = document.querySelectorAll('.content-section');
 
@@ -13,11 +12,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const targetId = this.getAttribute('data-target');
 
-      // Actualizar navegación
       navItems.forEach((nav) => nav.classList.remove('active'));
       this.classList.add('active');
 
-      // Mostrar sección correspondiente
       contentSections.forEach((section) => {
         section.classList.remove('active');
         if (section.id === targetId) {
@@ -27,7 +24,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // Formatear fechas de pedidos
   const orderDates = document.querySelectorAll('.order-date');
   orderDates.forEach((dateElement) => {
     const dateText = dateElement.textContent;
@@ -57,13 +53,11 @@ document.addEventListener('DOMContentLoaded', function () {
       const orderNumber = orderCard.querySelector('h4').textContent;
 
       if (confirm(`¿Estás seguro de que deseas cancelar ${orderNumber}?`)) {
-        // Aquí iría la llamada AJAX para cancelar el pedido
         alert('Funcionalidad de cancelación en desarrollo');
       }
     });
   });*/
 
-  // Efecto hover para tarjetas de admin
   const adminCards = document.querySelectorAll('.admin-card');
   adminCards.forEach((card) => {
     card.addEventListener('mouseenter', function () {
@@ -75,7 +69,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // Validar formularios (si los hay)
   const forms = document.querySelectorAll('form');
   forms.forEach((form) => {
     form.addEventListener('submit', function (e) {
@@ -87,7 +80,6 @@ document.addEventListener('DOMContentLoaded', function () {
           field.style.borderColor = '#e74c3c';
           isValid = false;
 
-          // Resetear color después de 2 segundos
           setTimeout(() => {
             field.style.borderColor = '';
           }, 2000);

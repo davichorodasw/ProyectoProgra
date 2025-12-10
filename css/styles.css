@@ -282,7 +282,6 @@ nav a:hover {
   font-size: 0.9rem;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .header h1 {
     font-size: 2.5rem;
@@ -313,7 +312,6 @@ nav a:hover {
   }
 }
 
-/* Página de CDs */
 .page-header {
   text-align: center;
   margin-bottom: 3rem;
@@ -535,13 +533,11 @@ nav a:hover {
   line-height: 1.6;
 }
 
-/* Navegación activa */
 nav a.active {
   background-color: #e74c3c;
   color: white;
 }
 
-/* Responsive para página de CDs */
 @media (max-width: 768px) {
   .page-header h1 {
     font-size: 2rem;
@@ -566,7 +562,6 @@ nav a.active {
   }
 }
 
-/* Página de Vinilos */
 .vinyl-card {
   background: white;
   border-radius: 8px;
@@ -755,12 +750,10 @@ nav a.active {
   opacity: 0.9;
 }
 
-/* Filtros específicos para vinilos */
 .filters-section .filters {
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }
 
-/* Responsive para página de vinilos */
 @media (max-width: 768px) {
   .vinyl-image::before {
     width: 100px;
@@ -793,7 +786,6 @@ nav a.active {
   }
 }
 
-/* Barra de Búsqueda */
 .search-section {
   background: white;
   padding: 1.5rem;
@@ -852,7 +844,6 @@ nav a.active {
   border-color: #c0392b;
 }
 
-/* Resultados de búsqueda */
 .search-results-header {
   text-align: center;
   margin-bottom: 2rem;
@@ -884,7 +875,6 @@ nav a.active {
   margin-bottom: 1rem;
 }
 
-/* Responsive para barra de búsqueda */
 @media (max-width: 768px) {
   .search-input-group {
     flex-direction: column;

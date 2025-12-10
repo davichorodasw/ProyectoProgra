@@ -37,7 +37,6 @@
     }
     ?>
 
-    <!-- Estilos principales -->
     <link rel="stylesheet" href="<?php echo asset('css/styles.css'); ?>" />
 
     <?php if (isset($currentPage) && $currentPage === "login"): ?>

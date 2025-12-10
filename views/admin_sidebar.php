@@ -1,4 +1,3 @@
-<!-- Admin Sidebar Component -->
 <div class="admin-sidebar">
     <div class="sidebar-header">
         <h3><?= htmlspecialchars($_SESSION['user_name']) ?></h3>

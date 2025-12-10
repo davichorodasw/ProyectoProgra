@@ -4,12 +4,10 @@ if (defined('NAV_INCLUIDO')) {
 }
 define('NAV_INCLUIDO', true);
 
-// Iniciar sesión si no está iniciada
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Cargar paths.php
 $pathsFiles = [
     __DIR__ . '/../config/paths.php',
     __DIR__ . '/../../config/paths.php'
@@ -24,7 +22,6 @@ foreach ($pathsFiles as $pathsFile) {
     }
 }
 
-// Si no se encontró paths.php, usar valores por defecto
 if (!$found) {
     define('BASE_PATH', '/');
     define('BASE_URL', (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . '/');
@@ -40,7 +37,6 @@ if (!$found) {
     }
 }
 
-// Asegurarse de que las funciones existen
 if (!function_exists('url')) {
     function url($path = '')
     {
