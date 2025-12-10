@@ -151,7 +151,7 @@ include "../componentes/nav.php";
                     <span class="nav-icon">📋</span>
                     Mis Datos
                 </a>
-                <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'user'): ?>
+                <?php if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin'): ?>
                     <a href="#mis-pedidos" class="nav-item" data-target="mis-pedidos">
                         <span class="nav-icon">📦</span>
                         Mis Pedidos
@@ -262,6 +262,13 @@ include "../componentes/nav.php";
                     <div class="orders-footer">
                         <p>Mostrando <?= count($pedidos) ?> pedidos recientes</p>
                     </div>
+
+                    <div class="orders-footer">
+                        <a href="mis_pedidos.php" class="button button-primary">
+                            Ver todos mis pedidos
+                        </a>
+                    </div>
+
                 <?php endif; ?>
             </div>
 

@@ -45,7 +45,7 @@ include "componentes/nav.php";
                         <div class="product-image <?= $tipoImageClass ?>">
                             <span class="<?= $tipoLabelClass ?>"><?= $tipoLabel ?></span>
                             <a href="views/<?= $prod->tipo === 'cd' ? 'cds' : 'vinilos' ?>.php">
-                                <img src="views/img/covers/<?= htmlspecialchars($img) ?>"
+                                <img src="img/covers/<?= htmlspecialchars($img) ?>"
                                     alt="<?= htmlspecialchars($prod->titulo) ?>"
                                     style="width:100%; height:100%; object-fit:cover;">
                             </a>

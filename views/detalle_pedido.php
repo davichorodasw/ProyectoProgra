@@ -73,7 +73,7 @@ include "../componentes/nav.php";
             <p>Pedido #<?= str_pad($pedido['id'], 6, '0', STR_PAD_LEFT) ?></p>
         </div>
         <a href="mi-cuenta.php#mis-pedidos" class="button button-outline">
-            ← Volver a Mis Pedidos
+            ← Volver
         </a>
     </div>
 
