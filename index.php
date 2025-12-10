@@ -36,11 +36,12 @@ include "componentes/nav.php";
             } else {
                 $db->set_charset("utf8");
 
+                // 3 últimos productos
                 $sql = "SELECT * FROM productos ORDER BY id DESC LIMIT 3";
                 $resultado = $db->query($sql);
 
                 if ($resultado && $resultado->num_rows > 0):
-                    while ($prod = $resultado->fetch_object()):
+                    while ($prod = $resultado->fetch_object()): // usamos fetch_object() → acceso como $prod->titulo
                         $img = (!empty($prod->imagen) && $prod->imagen !== 'default.png') ? $prod->imagen : 'default.png';
                         $tipoLabel = $prod->tipo === 'cd' ? 'CD' : 'Vinilo';
                         $tipoClass = $prod->tipo === 'cd' ? 'cd-card' : 'vinyl-card';

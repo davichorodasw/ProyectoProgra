@@ -1,7 +1,7 @@
 <?php
 class Utils
 {
-    public static function deleteSession($name)
+    public static function deleteSession($name) // elimina la variable de sesión
     {
         if (isset($_SESSION[$name])) {
             $_SESSION[$name] = null;
@@ -10,7 +10,7 @@ class Utils
         return $name;
     }
 
-    public static function isAdmin()
+    public static function isAdmin() // no da permiso a los usuarios normales a acceder a páginas de admins
     {
         $esAdmin = false;
 

@@ -1,9 +1,10 @@
 <?php
 if (!defined('BASE_URL')) {
     $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
-    $host = $_SERVER['HTTP_HOST'];
-    $script_name = $_SERVER['SCRIPT_NAME'];
+    $host = $_SERVER['HTTP_HOST']; // obtiene el dominio
+    $script_name = $_SERVER['SCRIPT_NAME']; // nos da la ruta del archivo actual
 
+    // esto obtiene las ruta de todo el proyecto y hace que las rutas no estén hardcodeadas
     $base_dir = str_replace('\\', '/', dirname(dirname(__FILE__)));
     $doc_root = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']);
     $base_path = str_replace($doc_root, '', $base_dir);
