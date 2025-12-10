@@ -5,7 +5,7 @@ header('Content-Type: application/json');
 
 if (
     !isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true ||
-    !isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin'
+    !isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin' // verifica si es admin para poder crear
 ) {
     http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Acceso no autorizado']);
@@ -97,7 +97,7 @@ try {
             $result_detalles = $stmt_detalles->get_result();
 
             while ($detalle = $result_detalles->fetch_assoc()) {
-                $sql_stock = "UPDATE productos SET stock = stock + ? WHERE id = ?";
+                $sql_stock = "UPDATE productos SET stock = stock + ? WHERE id = ?"; // si se cancela el pedido se debe devolver el stock qie se tenía del producto
                 $stmt_stock = $conn->prepare($sql_stock);
 
                 if ($stmt_stock) {

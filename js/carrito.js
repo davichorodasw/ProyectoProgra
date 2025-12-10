@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
     menosBtn.addEventListener('click', function (e) {
       let value = parseInt(input.value);
       if (value > 1) {
+        // validar que no sea menor a 1
         input.value = value - 1;
       }
     });

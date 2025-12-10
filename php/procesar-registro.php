@@ -71,7 +71,7 @@ $password_hash = password_hash($password, PASSWORD_DEFAULT);
 $insertQuery = "INSERT INTO usuarios (nombre, email, telefono, password) 
                 VALUES ('$name', '$email', '$phone', '$password_hash')";
 
-if (mysqli_query($conn, $insertQuery)) {
+if (mysqli_query($conn, $insertQuery)) { // si se crea el usuario ya iniciar sesión
     $user_id = mysqli_insert_id($conn);
 
     $_SESSION['user_id'] = $user_id;

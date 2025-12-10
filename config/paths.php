@@ -1,7 +1,7 @@
 <?php
 
 if (defined('BASE_PATH')) {
-    return;
+    return; // ya no redefine si ya se incluyó antes con lo que está en el archivo de conexión
 }
 
 $scriptName = $_SERVER['SCRIPT_NAME'];
@@ -20,12 +20,12 @@ define('BASE_URL', (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'ht
 
 function url($path = '')
 {
-    return BASE_PATH . ltrim($path, '/');
+    return BASE_PATH . ltrim($path, '/'); // URL relativa desde la raíz del proyecto
 }
 
 function asset($path = '')
 {
-    return BASE_URL . ltrim($path, '/');
+    return BASE_URL . ltrim($path, '/'); // URL de los archivos estáticos (css, js, fotos)
 }
 
 function isInViews()
@@ -37,8 +37,3 @@ function relativePath($file)
 {
     return isInViews() ? '../' . $file : $file;
 }
-
-// Debug opcional (puedes comentar esta línea en producción)
-/*
-echo "<pre>BASE_PATH: " . BASE_PATH . "\nBASE_URL: " . BASE_URL . "\nScript: " . $_SERVER['SCRIPT_NAME'] . "</pre>";
-*/
